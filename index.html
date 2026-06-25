@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  MR WES-TEE  -  "THE TEE-SHIRT DROPOUT"
+  Stile ispirato a Dash Burger: titoloni maiuscoli, blocchi
+  alternati foto/testo, marquee ripetuti, striscia foto nel footer.
+  Foto della landing incorporata nel file (base64), niente file esterni.
+  Codice semplice e lineare.
+  ============================================================
+-->
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mr Wes-Tee - The Tee-Shirt Dropout</title>
+
+  <!-- Anton = titoloni grossi e bold. Inter = testo normale. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================================================
+       1) BASE - colori e regole generali (palette stile Dash)
+       ============================================================ */
+
+    :root {
+      --sabbia:     #ddb890;   /* sfondo chiaro caldo */
+      --oxblood:    #411218;   /* scuro: testo e sezioni scure */
+      --ambra:      #e8982e;   /* accento principale (il pop) */
+      --ambra-cupo: #cf801c;   /* ambra piu scura per gli hover */
+      --pervinca:   #8087b5;   /* accento secondario */
+      --bianco:     #ffffff;
+      --grigio:     #6e2a30;   /* testo attenuato (oxblood spento) */
+      --raggio:      22px;     /* angoli arrotondati */
+      --raggio-xl:   34px;
+      --ombra:       0 14px 34px rgba(65,18,24,0.14);   /* ombra morbida */
+      --ombra-xl:    0 24px 50px rgba(65,18,24,0.20);
+      --vetro:       rgba(255,255,255,0.55);            /* vetro chiaro */
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      /* sabbia + due bagliori soffusi per dare vita allo sfondo */
+      background:
+        radial-gradient(900px 600px at 8% -5%, rgba(232,152,46,0.20), transparent 60%),
+        radial-gradient(800px 600px at 95% 8%, rgba(128,135,181,0.20), transparent 60%),
+        var(--sabbia);
+      background-attachment: fixed;
+      color: var(--oxblood);
+      line-height: 1.6;
+    }
+
+    /* Titoloni: font Anton, tutto maiuscolo, molto grandi. */
+    .display {
+      font-family: 'Anton', Impact, sans-serif;
+      text-transform: uppercase;
+      line-height: 0.92;
+      letter-spacing: 1px;
+      font-weight: 400;
+    }
+
+    .contenitore {
+      max-width: 100%;   /* usa tutta la larghezza dello schermo */
+      margin: 0;
+      padding: 0 5vw;    /* un po' di spazio ai lati, proporzionale */
+    }
+
+    .sezione { padding: 110px 0; }
+
+    .etichetta {
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--ambra);
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    /* Immagine segnaposto (per i punti dove non c'e ancora la foto). */
+    .immagine-segnaposto {
+      background: #c89a6a;
+      color: rgba(65,18,24,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      min-height: 220px;
+      border-radius: var(--raggio);
+    }
+
+    /* ============================================================
+       2) NAVBAR - barra flottante "a vetro" chiara (stile reference)
+       ============================================================ */
+
+    .navbar {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);      /* larga quanto la pagina, con un filo di margine */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 26px;
+      z-index: 100;
+      border-radius: 44px;           /* forma arrotondata a pillola */
+      /* Vetro chiaro: bianco molto trasparente + sfocatura. */
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 10px 30px rgba(65, 18, 24, 0.12);
+    }
+
+    /* Logo: iconcina arrotondata + nome. */
+    .navbar .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Anton', sans-serif;
+      font-size: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--oxblood);
+    }
+
+    .navbar .logo .icona {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: var(--ambra);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      box-shadow: 0 6px 14px rgba(232,152,46,0.45);
+      animation: galleggia 3s ease-in-out infinite;
+    }
+
+    .navbar .menu {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .navbar .menu a {
+      color: var(--pervinca);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .navbar .menu a:hover { color: var(--oxblood); }
+
+    .navbar .destra { display: flex; align-items: center; gap: 16px; }
+
+    .carrello {
+      color: var(--pervinca);
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .carrello:hover { color: var(--oxblood); }
+
+    /* Bottone bianco a pillola della navbar (come il "Login" della reference). */
+    .bottone-nav {
+      background: #fff;
+      color: var(--oxblood);
+      border: none;
+      padding: 11px 26px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(65, 18, 24, 0.12);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .bottone-nav:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(65, 18, 24, 0.18); }
+
+    /* Pulsanti. */
+    .bottone {
+      background: var(--ambra);
+      color: #fff;
+      border: none;
+      padding: 13px 26px;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      border-radius: 30px;                              /* pillola */
+      box-shadow: 0 10px 24px rgba(232,152,46,0.35);    /* alone ambra */
+      transition: transform 0.25s, background 0.25s, box-shadow 0.25s;
+    }
+
+    .bottone:hover {
+      transform: translateY(-3px) scale(1.03);
+      background: var(--ambra-cupo);
+      box-shadow: 0 16px 32px rgba(232,152,46,0.45);
+    }
+
+    /* Variante scura per i blocchi chiari. */
+    .bottone.scuro { background: var(--oxblood); box-shadow: 0 10px 24px rgba(65,18,24,0.30); }
+    .bottone.scuro:hover { background: #000; box-shadow: 0 16px 32px rgba(65,18,24,0.40); }
+
+    @media (max-width: 850px) {
+      .navbar .menu { display: none; }
+    }
+
+    /* ============================================================
+       3) HERO - foto a tutto schermo + nome brand + payoff
+       ============================================================ */
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      position: relative;
+      /* Sopra la foto metto una sfumatura scura in basso,
+         cosi il testo bianco si legge bene. La foto e incorporata qui. */
+      background-image:
+        linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.75) 100%),
+        url("archive/FOTO/backgroundHOMEPAGE.webp");
+      background-size: cover;
+      background-position: center;
+      padding: 0 0 60px;
+    }
+
+    .hero .testo-hero {
+      padding: 0 40px;
+      max-width: 900px;
+      animation: salita 1s ease both;   /* entra dal basso al caricamento */
+    }
+
+    .hero .nome {
+      font-size: clamp(54px, 13vw, 170px);
+      color: var(--sabbia);
+      margin-bottom: 6px;
+    }
+
+    .hero .payoff {
+      display: inline-block;
+      font-family: 'Anton', sans-serif;
+      text-transform: uppercase;
+      font-size: clamp(15px, 3vw, 30px);
+      letter-spacing: 4px;
+      color: #fff;
+      /* pillola in vetro, come la navbar */
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.35);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 8px 20px;
+      border-radius: 30px;
+      margin-bottom: 22px;
+    }
+
+    .hero p {
+      color: rgba(255,255,255,0.85);
+      max-width: 460px;
+      margin-bottom: 24px;
+    }
+
+    /* ============================================================
+       4) APPARIZIONE ALLO SCROLL (animazione semplice)
+       ============================================================ */
+
+    /* === Rivelazione allo scroll ===
+       Ogni .appari parte nascosto. Le varianti cambiano la direzione
+       di entrata. Il JS aggiunge .visibile quando arriva a schermo. */
+    .appari {
+      opacity: 0;
+      transform: translateY(45px);
+      transition: opacity 0.7s ease, transform 0.75s cubic-bezier(.2,.7,.2,1), filter 0.7s ease;
+      will-change: opacity, transform;
+    }
+    .appari.da-sinistra { transform: translateX(-70px); }
+    .appari.da-destra   { transform: translateX(70px); }
+    .appari.zoom        { transform: scale(0.85); }
+    .appari.sfoca       { transform: translateY(20px); filter: blur(14px); }
+    .appari.ruota       { transform: translateY(40px) rotate(-3deg); }
+    .appari.visibile    { opacity: 1; transform: none; filter: blur(0); }
+
+    /* Barra di avanzamento dello scroll, in cima alla pagina */
+    .scroll-progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 4px;
+      width: 0;
+      background: linear-gradient(90deg, var(--ambra), var(--pervinca));
+      z-index: 200;
+    }
+
+    /* Titoli che entrano parola per parola */
+    .parola {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(45px) rotate(4deg);
+      transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.2,.7,.2,1);
+    }
+    .parola.su { opacity: 1; transform: none; }
+
+    /* Macchie di colore sfocate che si muovono in parallasse */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* animazioni che danno vita */
+    @keyframes salita {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes galleggia {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    /* indicatore "scorri" in fondo alla hero, in vetro */
+    .scroll-cue {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.4);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #fff;
+      padding: 9px 18px;
+      border-radius: 30px;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      animation: galleggia 2.4s ease-in-out infinite;
+    }
+
+    /* ============================================================
+       5) MARQUEE (fascia scorrevole ripetuta, tipica di Dash)
+       ============================================================ */
+
+    .marquee {
+      background: var(--oxblood);
+      color: var(--sabbia);
+      padding: 16px 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .marquee.rosa { background: var(--ambra); color: #fff; }
+    .marquee.pervinca { background: var(--pervinca); color: #fff; }
+
+    .marquee-testo {
+      display: inline-block;
+      animation: scorri 22s linear infinite;
+      font-family: 'Anton', sans-serif;
+      font-size: 30px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .marquee-testo span { margin: 0 26px; }
+
+    @keyframes scorri {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ============================================================
+       6) BLOCCO ALTERNATO (foto + testo) - la spina dorsale di Dash
+       ============================================================ */
+
+    .blocco {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    /* "invertito" sposta la foto a destra. */
+    .blocco.invertito .testo-blocco { order: 2; }
+    .blocco.invertito .foto-blocco  { order: 1; }
+
+    .blocco h2 {
+      font-size: clamp(40px, 7vw, 90px);
+      margin-bottom: 18px;
+    }
+
+    .blocco p {
+      color: var(--grigio);
+      max-width: 440px;
+      margin-bottom: 26px;
+      font-size: 17px;
+    }
+
+    .blocco .immagine-segnaposto {
+      min-height: 420px;
+      border-radius: var(--raggio-xl);
+      box-shadow: var(--ombra);
+      transition: transform 0.5s, box-shadow 0.5s;
+    }
+    .blocco .foto-blocco:hover .immagine-segnaposto {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: var(--ombra-xl);
+    }
+
+    @media (max-width: 800px) {
+      .blocco { grid-template-columns: 1fr; gap: 30px; }
+      .blocco.invertito .testo-blocco,
+      .blocco.invertito .foto-blocco { order: 0; }
+    }
+
+    /* ============================================================
+       7) SHOP - griglia magliette
+       ============================================================ */
+
+    .shop { color: var(--oxblood); position: relative; overflow: hidden; }
+    .shop .contenitore { position: relative; z-index: 1; }
+
+    .shop .etichetta { color: var(--ambra); }
+
+    .prodotti-griglia {
+      display: grid;
+      /* riempie tutta la larghezza disponibile: tante colonne quante ne entrano,
+         minimo ~250px, che si allargano per occupare lo spazio. */
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 28px;
+      margin-top: 40px;
+    }
+
+    .scheda {
+      background: var(--vetro);
+      backdrop-filter: blur(12px) saturate(150%);
+      -webkit-backdrop-filter: blur(12px) saturate(150%);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: var(--raggio);
+      box-shadow: var(--ombra);
+      overflow: hidden;
+      transition: transform 0.4s, box-shadow 0.4s;
+    }
+
+    .scheda:hover { transform: translateY(-10px) scale(1.01); box-shadow: var(--ombra-xl); }
+
+    .scheda .foto { height: 280px; overflow: hidden; position: relative; }
+
+    .scheda .foto .immagine-segnaposto {
+      height: 100%;
+      border-radius: 0;
+      background: linear-gradient(135deg, #e6c8a0, #cda273);
+      color: rgba(65,18,24,0.45);
+      transition: transform 0.5s;
+    }
+
+    .scheda:hover .foto .immagine-segnaposto { transform: scale(1.08); }
+
+    .scheda .badge {
+      position: absolute;
+      top: 12px; left: 12px;
+      background: var(--ambra);
+      color: #fff;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 30px;
+      box-shadow: 0 6px 14px rgba(65,18,24,0.20);
+      z-index: 2;
+    }
+
+    .badge.pervinca { background: var(--pervinca); }
+
+    .scheda .testo { padding: 22px; }
+    .scheda h3 { font-family: 'Anton', sans-serif; text-transform: uppercase; font-size: 24px; letter-spacing: 1px; margin-bottom: 8px; }
+    .scheda .prezzo { color: var(--ambra); font-family: 'Anton', sans-serif; font-size: 20px; margin-bottom: 6px; }
+    .scheda .dettagli { font-size: 13px; color: rgba(65,18,24,0.5); margin-bottom: 16px; }
+
+    /* La griglia si adatta da sola (auto-fit), niente override fissi. */
+
+    /* ============================================================
+       8) STRISCIA FOTO (footer, tipo Dash)
+       ============================================================ */
+
+    .striscia-foto {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      padding: 14px 5vw 50px;
+    }
+    .striscia-foto .immagine-segnaposto {
+      min-height: 185px;
+      border-radius: var(--raggio);
+      box-shadow: var(--ombra);
+      transition: transform 0.4s, box-shadow 0.4s;
+    }
+    .striscia-foto .immagine-segnaposto:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: var(--ombra-xl);
+    }
+
+    @media (max-width: 700px) {
+      .striscia-foto { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ============================================================
+       9) FOOTER
+       ============================================================ */
+
+    footer {
+      background: var(--oxblood);
+      color: var(--sabbia);
+      padding: 60px 0 30px;
+      text-align: center;
+      border-radius: var(--raggio-xl) var(--raggio-xl) 0 0;
+    }
+
+    footer .logo-grande {
+      font-family: 'Anton', sans-serif;
+      font-size: 52px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    footer .payoff-piccolo {
+      color: var(--ambra);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 26px;
+    }
+
+    footer .link-footer {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    footer .link-footer a {
+      color: var(--sabbia);
+      text-decoration: none;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    footer .link-footer a:hover { color: var(--ambra); }
+
+    footer .piccolo { font-size: 12px; color: rgba(242,237,227,0.5); }
+
+    /* ============================================================
+       10) IMMAGINI REALI (riempiono i segnaposto)
+       ============================================================ */
+
+    /* Tutte le foto inserite nei contenitori riempiono lo spazio
+       mantenendo le proporzioni (object-fit: cover). */
+    .foto-blocco .media,
+    .scheda .foto .media,
+    .striscia-foto .media {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Nei blocchi alternati la foto ha la stessa altezza/raggio del segnaposto. */
+    .blocco .foto-blocco .media {
+      min-height: 420px;
+      border-radius: var(--raggio-xl);
+      box-shadow: var(--ombra);
+      transition: transform 0.5s, box-shadow 0.5s;
+    }
+    .blocco .foto-blocco:hover .media {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: var(--ombra-xl);
+    }
+
+    /* Nelle schede shop la foto e cliccabile. */
+    .scheda .foto { cursor: pointer; }
+    .scheda .foto .media { transition: transform 0.5s; }
+    .scheda:hover .foto .media { transform: scale(1.08); }
+
+    /* Striscia foto del footer. */
+    .striscia-foto .media {
+      min-height: 185px;
+      border-radius: var(--raggio);
+      box-shadow: var(--ombra);
+      transition: transform 0.4s, box-shadow 0.4s;
+    }
+    .striscia-foto .media:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: var(--ombra-xl);
+    }
+
+    /* ============================================================
+       11) MODALE PRODOTTO (pop up con galleria + carrello)
+       ============================================================ */
+
+    .modale {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .modale.aperta { display: flex; }
+
+    .modale-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(36,8,12,0.72);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      animation: dissolvi 0.3s ease both;
+    }
+
+    .modale-box {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 0;
+      width: min(960px, 100%);
+      max-height: 90vh;
+      background: var(--sabbia);
+      border-radius: var(--raggio-xl);
+      overflow: hidden;
+      box-shadow: var(--ombra-xl);
+      animation: salita 0.4s cubic-bezier(.2,.7,.2,1) both;
+    }
+
+    .modale-chiudi {
+      position: absolute;
+      top: 14px; right: 14px;
+      z-index: 3;
+      width: 40px; height: 40px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.85);
+      color: var(--oxblood);
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: var(--ombra);
+      transition: transform 0.25s, background 0.25s;
+    }
+    .modale-chiudi:hover { transform: rotate(90deg); background: #fff; }
+
+    /* Galleria a sinistra: foto grande + miniature. */
+    .modale-galleria {
+      background: #c89a6a;
+      display: flex;
+      flex-direction: column;
+    }
+    .modale-foto {
+      width: 100%;
+      flex: 1;
+      min-height: 320px;
+      max-height: 62vh;
+      object-fit: cover;
+      display: block;
+    }
+    .modale-thumbs {
+      display: flex;
+      gap: 8px;
+      padding: 12px;
+      overflow-x: auto;
+      background: rgba(65,18,24,0.06);
+    }
+    .modale-thumbs img {
+      width: 60px; height: 60px;
+      object-fit: cover;
+      border-radius: 12px;
+      cursor: pointer;
+      flex: 0 0 auto;
+      opacity: 0.6;
+      border: 2px solid transparent;
+      transition: opacity 0.25s, border-color 0.25s, transform 0.25s;
+    }
+    .modale-thumbs img:hover { opacity: 1; transform: translateY(-2px); }
+    .modale-thumbs img.attiva { opacity: 1; border-color: var(--ambra); }
+
+    /* Info a destra. */
+    .modale-info {
+      padding: 40px 34px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .modale-info h3 {
+      font-size: clamp(30px, 4vw, 46px);
+      margin: 6px 0 10px;
+    }
+    .modale-info .prezzo {
+      color: var(--ambra);
+      font-family: 'Anton', sans-serif;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    .modale-info .dettagli {
+      font-size: 14px;
+      color: var(--grigio);
+      margin-bottom: 22px;
+    }
+
+    .taglie-titolo {
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--oxblood);
+      margin-bottom: 10px;
+    }
+    .taglie {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .taglia {
+      min-width: 46px;
+      padding: 9px 0;
+      text-align: center;
+      border: 1.5px solid rgba(65,18,24,0.25);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--oxblood);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .taglia:hover { border-color: var(--ambra); }
+    .taglia.scelta {
+      background: var(--oxblood);
+      border-color: var(--oxblood);
+      color: #fff;
+    }
+
+    .modale-info .bottone { text-align: center; margin-top: auto; }
+
+    @media (max-width: 760px) {
+      .modale-box {
+        grid-template-columns: 1fr;
+        max-height: 92vh;
+        overflow-y: auto;
+      }
+      .modale-foto { max-height: 42vh; }
+    }
+
+    /* Avviso "aggiunto al carrello" (toast). */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 30px;
+      /* A riposo e completamente invisibile (non dipende dall'altezza). */
+      opacity: 0;
+      visibility: hidden;
+      transform: translate(-50%, 20px);
+      z-index: 600;
+      background: var(--oxblood);
+      color: var(--sabbia);
+      padding: 14px 24px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 14px;
+      box-shadow: var(--ombra-xl);
+      pointer-events: none;
+      transition: transform 0.4s cubic-bezier(.2,.7,.2,1), opacity 0.4s, visibility 0.4s;
+    }
+    .toast.mostra {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0);
+    }
+
+    @keyframes dissolvi { from { opacity: 0; } to { opacity: 1; } }
+
+    /* ============================================================
+       12) SEZIONI MENO PIATTE - profondita, cornici e decori
+       ============================================================ */
+
+    /* Le sezioni decorate ospitano i blob sfocati senza farli sbordare. */
+    .sezione-decorata { position: relative; overflow: hidden; }
+    .sezione-decorata .contenitore { position: relative; z-index: 2; }
+
+    /* Pannello "a vetro" dietro al testo dei blocchi: niente piu testo nudo
+       sullo sfondo piatto, ma una scheda con sfumatura e ombra. */
+    .blocco .testo-blocco {
+      position: relative;
+      padding: 38px 40px;
+      border-radius: var(--raggio-xl);
+      background:
+        linear-gradient(160deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15));
+      border: 1px solid rgba(255,255,255,0.55);
+      box-shadow: var(--ombra);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    /* piccola barra ambra di accento in alto a sinistra del pannello */
+    .blocco .testo-blocco::before {
+      content: "";
+      position: absolute;
+      top: 30px; left: 0;
+      width: 5px; height: 46px;
+      border-radius: 0 6px 6px 0;
+      background: linear-gradient(var(--ambra), var(--pervinca));
+    }
+
+    /* Cornice colorata sfalsata dietro le foto dei blocchi: da profondita. */
+    .blocco .foto-blocco { position: relative; }
+    .blocco .foto-blocco::before {
+      content: "";
+      position: absolute;
+      inset: 22px -22px -22px 22px;
+      border-radius: var(--raggio-xl);
+      background: linear-gradient(135deg, var(--ambra), var(--pervinca));
+      opacity: 0.30;
+      z-index: 0;
+      transition: transform 0.5s;
+    }
+    .blocco .foto-blocco:hover::before { transform: translate(-8px, -8px); }
+    .blocco .foto-blocco .media { position: relative; z-index: 1; }
+    .blocco.invertito .foto-blocco::before { inset: 22px 22px -22px -22px; }
+
+    /* Sfondo alternato per la sezione "tecnica/liberta": una fascia piu calda
+       con sfumatura, cosi le sezioni non sono tutte dello stesso colore. */
+    .sezione.calda {
+      background:
+        radial-gradient(700px 500px at 90% 10%, rgba(232,152,46,0.18), transparent 60%),
+        linear-gradient(180deg, rgba(65,18,24,0.04), rgba(128,135,181,0.10));
+    }
+
+    /* I blob decorativi (riuso lo stile .blob gia presente). */
+    .blob.tenue { opacity: 0.30; }
+
+    @media (max-width: 800px) {
+      .blocco .testo-blocco { padding: 28px 26px; }
+      .blocco .foto-blocco::before,
+      .blocco.invertito .foto-blocco::before { inset: 14px -14px -14px 14px; }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="scroll-progress" id="barraScroll"></div>
+
+  <!-- ========================= NAVBAR ========================= -->
+  <nav class="navbar">
+    <div class="logo"><span class="icona">MW</span> Mr Wes-Tee</div>
+    <ul class="menu">
+      <li><a href="#about">About</a></li>
+      <li><a href="#shop">Shop</a></li>
+      <li><a href="#crew">Crew</a></li>
+      <li><a href="#newsletter">Contatti</a></li>
+    </ul>
+    <div class="destra">
+      <span class="carrello">Carrello (0)</span>
+      <a href="#shop" class="bottone-nav">Acquista ora</a>
+    </div>
+  </nav>
+
+  <!-- ========================= HERO (foto nella landing) ========================= -->
+  <header class="hero">
+    <div class="testo-hero">
+      <h1 class="display nome">Mr Wes-Tee</h1>
+      <div class="payoff">The Tee-Shirt Dropout</div>
+      <p>Testo segnaposto di benvenuto. Solo magliette, fatte con attitudine. Sostituiscilo con il tuo.</p>
+      <a href="#shop" class="bottone">Scopri la collezione</a>
+    </div>
+    <div class="scroll-cue">Scorri &#8595;</div>
+  </header>
+
+  <!-- ========================= MARQUEE (rosa) ========================= -->
+  <div class="marquee rosa">
+    <div class="marquee-testo">
+      <span>The Tee-Shirt Dropout &#10070;</span>
+      <span>Join The Dropout Club &#10070;</span>
+      <span>Solo Magliette &#10070;</span>
+      <span>The Tee-Shirt Dropout &#10070;</span>
+      <span>Join The Dropout Club &#10070;</span>
+      <span>Solo Magliette &#10070;</span>
+    </div>
+  </div>
+
+  <!-- ========================= BLOCCO 1 (about) ========================= -->
+  <section class="sezione sezione-decorata" id="about">
+    <div class="blob tenue" data-parallax="0.10" style="width:340px;height:340px;background:var(--ambra);top:-90px;right:-70px;"></div>
+    <div class="blob tenue" data-parallax="0.16" style="width:280px;height:280px;background:var(--pervinca);bottom:-90px;left:-60px;"></div>
+    <div class="contenitore blocco">
+      <div class="testo-blocco appari da-sinistra">
+        <p class="etichetta">01 - About</p>
+        <h2 class="display titolo-anim">Dress Like A Dropout</h2>
+        <p>Paragrafo segnaposto con attitudine. Qui racconti chi e Mr Wes-Tee e perche fate solo magliette. Sostituisci con il testo vero.</p>
+        <a href="#shop" class="bottone scuro">Vedi lo shop</a>
+      </div>
+      <div class="foto-blocco appari da-destra">
+        <img class="media" src="archive/FOTO/maglia%203%20fronte.webp" alt="Maglietta Mr Wes-Tee" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= BLOCCO 2 (invertito) - liberta ========================= -->
+  <section class="sezione calda sezione-decorata">
+    <div class="blob tenue" data-parallax="0.14" style="width:320px;height:320px;background:var(--pervinca);top:-80px;left:-70px;"></div>
+    <div class="blob tenue" data-parallax="0.10" style="width:300px;height:300px;background:var(--ambra);bottom:-100px;right:-60px;"></div>
+    <div class="contenitore blocco invertito">
+      <div class="testo-blocco appari da-destra">
+        <p class="etichetta">02 - Liberta</p>
+        <h2 class="display titolo-anim">Be Free To Express Yourself</h2>
+        <p>Paragrafo segnaposto sulla liberta. Indossa cio che sei: ogni maglietta e un modo per esprimerti senza filtri. Sostituisci con il testo vero.</p>
+        <a href="#shop" class="bottone scuro">Esprimiti</a>
+      </div>
+      <div class="foto-blocco appari da-sinistra">
+        <img class="media" src="archive/FOTO/bee%20free%20to%20express%20yourself.png" alt="Be free to express yourself" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= MARQUEE (scuro) ========================= -->
+  <div class="marquee pervinca">
+    <div class="marquee-testo">
+      <span>Mr Wes-Tee &#10070;</span>
+      <span>Drop Out, Stand Out &#10070;</span>
+      <span>The Tee-Shirt Dropout &#10070;</span>
+      <span>Mr Wes-Tee &#10070;</span>
+      <span>Drop Out, Stand Out &#10070;</span>
+      <span>The Tee-Shirt Dropout &#10070;</span>
+    </div>
+  </div>
+
+  <!-- ========================= SHOP ========================= -->
+  <section class="sezione shop" id="shop">
+    <div class="blob" data-parallax="0.12" style="width:360px;height:360px;background:var(--ambra);top:-80px;left:-60px;"></div>
+    <div class="blob" data-parallax="0.20" style="width:320px;height:320px;background:var(--pervinca);bottom:-100px;right:-50px;"></div>
+    <div class="contenitore">
+      <p class="etichetta appari">03 - Shop</p>
+      <h2 class="display titolo-anim" style="font-size: clamp(40px,6vw,80px);">Trova la tua maglietta</h2>
+
+      <div class="prodotti-griglia cascata" id="grigliaProdotti">
+        <!-- Le schede vengono generate dal catalogo in JavaScript. -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= BLOCCO 3 (crew / call to action) ========================= -->
+  <section class="sezione sezione-decorata" id="crew">
+    <div class="blob tenue" data-parallax="0.12" style="width:340px;height:340px;background:var(--ambra);top:-100px;left:-70px;"></div>
+    <div class="blob tenue" data-parallax="0.18" style="width:300px;height:300px;background:var(--pervinca);bottom:-90px;right:-60px;"></div>
+    <div class="contenitore blocco">
+      <div class="testo-blocco appari da-sinistra">
+        <p class="etichetta">04 - Il club</p>
+        <h2 class="display titolo-anim">Join The Dropout Crew</h2>
+        <p>Paragrafo segnaposto. Entra nella crew di Mr Wes-Tee: nuove uscite, drop a sorpresa, sconti. Sostituisci con il testo vero.</p>
+        <a href="#newsletter" class="bottone">Iscriviti</a>
+      </div>
+      <div class="foto-blocco appari da-destra">
+        <img class="media" src="archive/FOTO/join%20the%20dropout%20crew.png" alt="Join the dropout crew" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= STRISCIA FOTO ========================= -->
+  <div class="striscia-foto cascata">
+    <img class="media appari" src="archive/FOTO/maglia%201%20grafica%201.webp" alt="Mr Wes-Tee" loading="lazy">
+    <img class="media appari" src="archive/FOTO/maglia%202%20grafica%201.webp" alt="Mr Wes-Tee" loading="lazy">
+    <img class="media appari" src="archive/FOTO/maglia%203%20grafica%201.webp" alt="Mr Wes-Tee" loading="lazy">
+    <img class="media appari" src="archive/FOTO/maglia%204%20grafica%201.webp" alt="Mr Wes-Tee" loading="lazy">
+    <img class="media appari" src="archive/FOTO/maglia%202%20retro.webp" alt="Mr Wes-Tee" loading="lazy">
+  </div>
+
+  <!-- ========================= MARQUEE FINALE ========================= -->
+  <div class="marquee rosa">
+    <div class="marquee-testo">
+      <span>Join The Dropout Club &#10070;</span>
+      <span>Join The Dropout Club &#10070;</span>
+      <span>Join The Dropout Club &#10070;</span>
+      <span>Join The Dropout Club &#10070;</span>
+      <span>Join The Dropout Club &#10070;</span>
+      <span>Join The Dropout Club &#10070;</span>
+    </div>
+  </div>
+
+  <!-- ========================= FOOTER ========================= -->
+  <footer id="newsletter">
+    <div class="contenitore">
+      <div class="logo-grande">Mr Wes-Tee</div>
+      <div class="payoff-piccolo">The Tee-Shirt Dropout</div>
+
+      <div class="link-footer">
+        <a href="#about">About</a>
+        <a href="#shop">Shop</a>
+        <a href="#crew">Crew</a>
+        <a href="#">Instagram</a>
+        <a href="#">Contatti</a>
+      </div>
+
+      <p class="piccolo">&copy; 2026 Mr Wes-Tee. Tutti i diritti riservati. &bull; Sito demo segnaposto.</p>
+    </div>
+  </footer>
+
+
+  <!-- ========================= MODALE PRODOTTO ========================= -->
+  <div class="modale" id="modale" aria-hidden="true">
+    <div class="modale-overlay" data-chiudi></div>
+    <div class="modale-box" role="dialog" aria-modal="true" aria-labelledby="modaleNome">
+      <button class="modale-chiudi" type="button" data-chiudi aria-label="Chiudi">&times;</button>
+
+      <div class="modale-galleria">
+        <img class="modale-foto" id="modaleFoto" src="" alt="">
+        <div class="modale-thumbs" id="modaleThumbs"></div>
+      </div>
+
+      <div class="modale-info">
+        <p class="etichetta">Mr Wes-Tee</p>
+        <h3 class="display" id="modaleNome"></h3>
+        <div class="prezzo" id="modalePrezzo"></div>
+        <p class="dettagli" id="modaleDettagli"></p>
+
+        <p class="taglie-titolo">Scegli la taglia</p>
+        <div class="taglie" id="modaleTaglie"></div>
+
+        <button class="bottone" type="button" id="modaleAggiungi">Aggiungi al carrello</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================= TOAST ========================= -->
+  <div class="toast" id="toast">Aggiunto al carrello</div>
+
+  <!-- ============================================================
+       JAVASCRIPT - apparizione allo scroll + modale prodotto + carrello
+       ============================================================ -->
+  <script>
+    // ============================================================
+    // 0) CATALOGO PRODOTTI + SCHEDE SHOP
+    //    Ogni prodotto ha tutte le sue foto: la prima e la copertina,
+    //    le altre si vedono nella galleria della modale.
+    // ============================================================
+    var BASE_FOTO = 'archive/FOTO/';
+
+    // I nomi file contengono spazi: encodeURI li trasforma in %20.
+    function foto(nomi) {
+      return nomi.map(function (n) { return BASE_FOTO + encodeURI(n) + '.webp'; });
+    }
+
+    // Ogni modello = una scheda. Ordine foto: fronte (copertina), retro, grafiche.
+    var catalogo = {
+      maglia1: {
+        nome: 'Maglia 01',
+        prezzo: '35 EUR',
+        dettagli: 'Taglie S - XXL • Fronte, retro e grafiche • 100% cotone',
+        badge: 'Nuovo',
+        foto: foto(['malia 1 fronte', 'maglia 1 retro', 'maglia 1 grafica 1', 'maglia 1 grafica 2'])
+      },
+      maglia2: {
+        nome: 'Maglia 02',
+        prezzo: '35 EUR',
+        dettagli: 'Taglie S - XXL • Fronte, retro e grafiche • 100% cotone',
+        badge: 'Best seller',
+        badgeClasse: 'pervinca',
+        foto: foto(['maglia 2 fronte', 'maglia 2 retro', 'maglia 2 grafica 1', 'maglia due grafica 2'])
+      },
+      maglia3: {
+        nome: 'Maglia 03',
+        prezzo: '40 EUR',
+        dettagli: 'Taglie S - XXL • Fronte, retro e grafiche • 100% cotone',
+        foto: foto(['maglia 3 fronte', 'maglia 3 retro', 'maglia 3 grafica 1', 'maglia 3 grafica 2'])
+      },
+      maglia4: {
+        nome: 'Maglia 04',
+        prezzo: '40 EUR',
+        dettagli: 'Taglie S - XXL • Fronte, retro e grafica • Edizione limitata',
+        badge: 'Limited',
+        foto: foto(['maglia 4 fronte', 'maglia 4 retro', 'maglia 4 grafica 1'])
+      }
+    };
+
+    // Genero le schede dello shop dal catalogo.
+    var griglia = document.getElementById('grigliaProdotti');
+    Object.keys(catalogo).forEach(function (chiave) {
+      var p = catalogo[chiave];
+      var scheda = document.createElement('article');
+      scheda.className = 'scheda appari';
+      scheda.setAttribute('data-prodotto', chiave);
+
+      var badgeHtml = p.badge
+        ? '<div class="badge ' + (p.badgeClasse || '') + '">' + p.badge + '</div>'
+        : '';
+
+      scheda.innerHTML =
+        '<div class="foto" data-apri="' + chiave + '">' + badgeHtml +
+          '<img class="media" src="' + p.foto[0] + '" alt="' + p.nome + '" loading="lazy"></div>' +
+        '<div class="testo">' +
+          '<h3>' + p.nome + '</h3>' +
+          '<div class="prezzo">' + p.prezzo + '</div>' +
+          '<div class="dettagli">' + p.dettagli + '</div>' +
+          '<button type="button" class="bottone" data-apri="' + chiave + '">Vedi e aggiungi</button>' +
+        '</div>';
+
+      griglia.appendChild(scheda);
+    });
+
+    // ============================================================
+    // 0b) MODALE PRODOTTO (galleria foto + scelta taglia + carrello)
+    // ============================================================
+    var modale       = document.getElementById('modale');
+    var modaleFoto   = document.getElementById('modaleFoto');
+    var modaleThumbs = document.getElementById('modaleThumbs');
+    var modaleNome   = document.getElementById('modaleNome');
+    var modalePrezzo = document.getElementById('modalePrezzo');
+    var modaleDett   = document.getElementById('modaleDettagli');
+    var modaleTaglie = document.getElementById('modaleTaglie');
+    var btnAggiungi  = document.getElementById('modaleAggiungi');
+    var toast        = document.getElementById('toast');
+
+    var TAGLIE = ['S', 'M', 'L', 'XL', 'XXL'];
+    var prodottoAttivo = null;
+    var tagliaScelta = null;
+    var totaleCarrello = 0;
+    var timerToast = null;
+
+    function apriModale(chiave) {
+      var p = catalogo[chiave];
+      if (!p) return;
+      prodottoAttivo = chiave;
+      tagliaScelta = null;
+
+      modaleNome.textContent = p.nome;
+      modalePrezzo.textContent = p.prezzo;
+      modaleDett.textContent = p.dettagli;
+
+      // foto grande = prima foto
+      cambiaFoto(p.foto[0]);
+
+      // miniature di tutte le foto
+      modaleThumbs.innerHTML = '';
+      p.foto.forEach(function (src, idx) {
+        var t = document.createElement('img');
+        t.src = src;
+        t.alt = p.nome + ' foto ' + (idx + 1);
+        t.loading = 'lazy';
+        if (idx === 0) t.className = 'attiva';
+        t.addEventListener('click', function () {
+          cambiaFoto(src);
+          var attuali = modaleThumbs.querySelectorAll('img');
+          for (var j = 0; j < attuali.length; j++) attuali[j].classList.remove('attiva');
+          t.classList.add('attiva');
+        });
+        modaleThumbs.appendChild(t);
+      });
+
+      // bottoni taglia
+      modaleTaglie.innerHTML = '';
+      TAGLIE.forEach(function (tg) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'taglia';
+        b.textContent = tg;
+        b.addEventListener('click', function () {
+          tagliaScelta = tg;
+          var tutte = modaleTaglie.querySelectorAll('.taglia');
+          for (var j = 0; j < tutte.length; j++) tutte[j].classList.remove('scelta');
+          b.classList.add('scelta');
+        });
+        modaleTaglie.appendChild(b);
+      });
+
+      btnAggiungi.textContent = 'Aggiungi al carrello';
+      modale.classList.add('aperta');
+      modale.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function cambiaFoto(src) {
+      modaleFoto.src = src;
+      modaleFoto.alt = (prodottoAttivo ? catalogo[prodottoAttivo].nome : '');
+    }
+
+    function chiudiModale() {
+      modale.classList.remove('aperta');
+      modale.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    function mostraToast(testo) {
+      toast.textContent = testo;
+      toast.classList.add('mostra');
+      if (timerToast) clearTimeout(timerToast);
+      timerToast = setTimeout(function () { toast.classList.remove('mostra'); }, 2200);
+    }
+
+    function aggiornaCarrello() {
+      var span = document.querySelectorAll('.carrello');
+      for (var i = 0; i < span.length; i++) {
+        span[i].textContent = 'Carrello (' + totaleCarrello + ')';
+      }
+    }
+
+    // Apertura: click su foto o bottone con data-apri.
+    document.addEventListener('click', function (e) {
+      var apri = e.target.closest('[data-apri]');
+      if (apri) { apriModale(apri.getAttribute('data-apri')); return; }
+      if (e.target.closest('[data-chiudi]')) { chiudiModale(); }
+    });
+
+    // Chiusura con Esc.
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modale.classList.contains('aperta')) chiudiModale();
+    });
+
+    // Aggiungi al carrello.
+    btnAggiungi.addEventListener('click', function () {
+      if (!prodottoAttivo) return;
+      if (!tagliaScelta) { mostraToast('Scegli prima una taglia'); return; }
+      totaleCarrello++;
+      aggiornaCarrello();
+      mostraToast(catalogo[prodottoAttivo].nome + ' (' + tagliaScelta + ') aggiunta al carrello');
+      chiudiModale();
+    });
+
+    // ---- 1) Rivelazione allo scroll (con le varianti di direzione) ----
+    var daRivelare = document.querySelectorAll('.appari');
+
+    var osservatore = new IntersectionObserver(function (voci) {
+      for (var i = 0; i < voci.length; i++) {
+        if (voci[i].isIntersecting) {
+          voci[i].target.classList.add('visibile');
+          osservatore.unobserve(voci[i].target); // si anima una volta sola
+        }
+      }
+    }, { threshold: 0.15 });
+
+    for (var i = 0; i < daRivelare.length; i++) {
+      osservatore.observe(daRivelare[i]);
+    }
+
+    // ---- 2) Effetto cascata: do un ritardo crescente ai figli di .cascata ----
+    var gruppi = document.querySelectorAll('.cascata');
+    for (var g = 0; g < gruppi.length; g++) {
+      var figli = gruppi[g].querySelectorAll('.appari');
+      for (var f = 0; f < figli.length; f++) {
+        figli[f].style.transitionDelay = (f * 0.09) + 's';
+      }
+    }
+
+    // ---- 3) Titoli animati parola per parola ----
+    var titoli = document.querySelectorAll('.titolo-anim');
+
+    // Prima divido ogni titolo in parole avvolte in <span class="parola">.
+    for (var t = 0; t < titoli.length; t++) {
+      var parole = titoli[t].textContent.trim().split(' ');
+      titoli[t].innerHTML = '';
+      for (var p = 0; p < parole.length; p++) {
+        var s = document.createElement('span');
+        s.className = 'parola';
+        s.textContent = parole[p] + '\u00A0'; // spazio dopo la parola
+        titoli[t].appendChild(s);
+      }
+    }
+
+    // Poi le faccio entrare a cascata quando il titolo arriva a schermo.
+    var ossTitoli = new IntersectionObserver(function (voci) {
+      for (var i = 0; i < voci.length; i++) {
+        if (voci[i].isIntersecting) {
+          var ps = voci[i].target.querySelectorAll('.parola');
+          for (var k = 0; k < ps.length; k++) {
+            ps[k].style.transitionDelay = (k * 0.07) + 's';
+            ps[k].classList.add('su');
+          }
+          ossTitoli.unobserve(voci[i].target);
+        }
+      }
+    }, { threshold: 0.25 });
+
+    for (var t2 = 0; t2 < titoli.length; t2++) {
+      ossTitoli.observe(titoli[t2]);
+    }
+
+    // ---- 4) Barra di avanzamento + parallasse (foto hero e blob) ----
+    var barra = document.getElementById('barraScroll');
+    var hero = document.querySelector('.hero');
+    var blobs = document.querySelectorAll('[data-parallax]');
+
+    function aggiornaScroll() {
+      var y = window.scrollY;
+
+      // barra di avanzamento (in percentuale)
+      var totale = document.body.scrollHeight - window.innerHeight;
+      barra.style.width = (totale > 0 ? (y / totale) * 100 : 0) + '%';
+
+      // la foto della hero scorre piu lenta (parallasse)
+      if (hero) {
+        hero.style.backgroundPosition = 'center top, center ' + (y * 0.35) + 'px';
+      }
+
+      // i blob si muovono in base alla loro posizione
+      for (var i = 0; i < blobs.length; i++) {
+        var fattore = parseFloat(blobs[i].getAttribute('data-parallax'));
+        var r = blobs[i].getBoundingClientRect();
+        var centro = r.top + r.height / 2 - window.innerHeight / 2;
+        blobs[i].style.transform = 'translateY(' + (-centro * fattore) + 'px)';
+      }
+    }
+
+    // Uso requestAnimationFrame cosi lo scroll resta fluido.
+    window.addEventListener('scroll', function () {
+      window.requestAnimationFrame(aggiornaScroll);
+    });
+    aggiornaScroll();
+  </script>
+
+</body>
+</html>

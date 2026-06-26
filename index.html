@@ -81,6 +81,12 @@
     .container { max-width: var(--container); margin: 0 auto; padding: 0 24px; }
     .sezione   { padding: var(--gap) 0; }
 
+    /* sezione su fondo rosso scuro del brand (come footer e marquee scuro):
+       il testo diventa chiaro, l'accento resta ambra. */
+    .sezione-rossa { background: var(--ink); color: var(--paper); }
+    .sezione-rossa .display { color: var(--paper); }
+    .sezione-rossa .etichetta { color: var(--amber); }
+
     /* bottone principale (pieno) e secondario (linea) */
     .btn {
       display: inline-flex; align-items: center; gap: 10px;
@@ -266,7 +272,7 @@
     .valori li { display: flex; gap: 14px; align-items: baseline; font-size: 16px; }
     .valori li::before { content: ""; flex: 0 0 auto; width: 18px; height: 2px; background: var(--amber); transform: translateY(-5px); }
     /* foto INTERA (contain) con passe-partout: nessun contenuto tagliato */
-    .valori-foto img { width: 100%; height: clamp(400px, 46vw, 580px); object-fit: contain; background: #ece0cb; border-radius: var(--bordo); }
+    .valori-foto img { width: 100%; height: clamp(400px, 46vw, 580px); object-fit: contain; }
 
     /* ===============================================================
        11) TESTIMONIAL (card della community)
@@ -284,7 +290,7 @@
        =============================================================== */
     .spotlight { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(30px, 5vw, 70px); align-items: center; }
     @media (max-width: 820px) { .spotlight { grid-template-columns: 1fr; } }
-    .spotlight-foto img { width: 100%; height: clamp(360px, 44vw, 560px); object-fit: contain; background: #ece0cb; border-radius: var(--bordo); }
+    .spotlight-foto img { width: 100%; height: clamp(360px, 44vw, 560px); object-fit: contain; }
     .spotlight h2 { font-size: clamp(32px, 5vw, 64px); margin: 14px 0 20px; }
     .spotlight p { color: var(--ink-soft); max-width: 460px; margin-bottom: 26px; }
 
@@ -501,12 +507,12 @@
   </section>
 
   <!-- ======================= TESTIMONIAL ======================== -->
-  <section class="sezione">
+  <section class="sezione sezione-rossa">
     <div class="container">
       <div class="testa-sezione reveal">
         <div>
-          <p class="etichetta amber">04 — La crew dice</p>
-          <h2 class="display">Mr Wes-Tee & te</h2>
+          <p class="etichetta amber">04 — Recensioni</p>
+          <h2 class="display">Parola alla crew</h2>
         </div>
       </div>
       <div class="testi-griglia">
@@ -678,10 +684,30 @@
   document.querySelectorAll('.reveal').forEach(function (n) { io.observe(n); });
 
   /* ===============================================================
-     D) MARQUEE  (duplico il contenuto per uno scorrimento continuo)
+     D) MARQUEE  (sempre pieno: ripeto finche un blocco copre la fascia,
+        poi lo duplico -> scorrimento a -50% senza spazi vuoti)
      =============================================================== */
-  document.querySelectorAll('[data-marquee]').forEach(function (track) {
-    track.innerHTML = track.innerHTML + track.innerHTML; // due copie -> loop senza stacchi
+  function impostaMarquee(track) {
+    // conservo il contenuto originale una volta sola
+    if (track.dataset.base === undefined) track.dataset.base = track.innerHTML;
+    var base = track.dataset.base;
+    var fascia = track.parentElement.offsetWidth;
+    track.innerHTML = base;
+    // ripeto il contenuto finche un singolo blocco e largo almeno quanto la fascia
+    var giri = 0;
+    while (track.scrollWidth < fascia && giri < 30) { track.innerHTML += base; giri++; }
+    var unita = track.scrollWidth;        // larghezza di un blocco pieno
+    track.innerHTML += track.innerHTML;   // due blocchi identici -> loop a -50%
+    track.style.animationDuration = Math.max(18, unita / 70) + 's'; // velocita costante
+  }
+  document.querySelectorAll('[data-marquee]').forEach(impostaMarquee);
+  // ricalcolo al resize (cambia la larghezza della fascia)
+  var resizeT;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeT);
+    resizeT = setTimeout(function () {
+      document.querySelectorAll('[data-marquee]').forEach(impostaMarquee);
+    }, 200);
   });
 
   /* ===============================================================

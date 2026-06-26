@@ -1,41 +1,46 @@
 <!DOCTYPE html>
 <!--
-  ============================================================
-  MR WES-TEE  -  "THE TEE-SHIRT DROPOUT"
-  Stile ispirato a Dash Burger: titoloni maiuscoli, blocchi
-  alternati foto/testo, marquee ripetuti, striscia foto nel footer.
-  Foto della landing incorporata nel file (base64), niente file esterni.
-  Codice semplice e lineare.
-  ============================================================
+  ===================================================================
+  MR WES-TEE — "The Tee-Shirt Dropout"
+  Layout e animazioni ispirati a drinkdouze.com, adattati al brand.
+
+  COME E' ORGANIZZATO QUESTO FILE (tutto in uno, vanilla):
+    1) <style>  -> CSS diviso in sezioni numerate e commentate
+    2) <body>   -> le sezioni della pagina, in ordine, una per blocco
+    3) <script> -> in cima c'e l'array PRODOTTI: e' l'UNICO punto da
+                   modificare per cambiare i capi. Sotto, le funzioni
+                   (reveal allo scroll, marquee, carosello, modale).
+  ===================================================================
 -->
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mr Wes-Tee - The Tee-Shirt Dropout</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mr Wes-Tee — The Tee-Shirt Dropout</title>
 
-  <!-- Anton = titoloni grossi e bold. Inter = testo normale. -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- Anton = titoloni; Inter = testo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    /* ============================================================
-       1) BASE - colori e regole generali (palette stile Dash)
-       ============================================================ */
-
+    /* ===============================================================
+       1) VARIABILI + RESET
+       =============================================================== */
     :root {
-      --sabbia:     #ddb890;   /* sfondo chiaro caldo */
-      --oxblood:    #411218;   /* scuro: testo e sezioni scure */
-      --ambra:      #e8982e;   /* accento principale (il pop) */
-      --ambra-cupo: #cf801c;   /* ambra piu scura per gli hover */
-      --pervinca:   #8087b5;   /* accento secondario */
-      --bianco:     #ffffff;
-      --grigio:     #6e2a30;   /* testo attenuato (oxblood spento) */
-      --raggio:      22px;     /* angoli arrotondati */
-      --raggio-xl:   34px;
-      --ombra:       0 14px 34px rgba(65,18,24,0.14);   /* ombra morbida */
-      --ombra-xl:    0 24px 50px rgba(65,18,24,0.20);
-      --vetro:       rgba(255,255,255,0.55);            /* vetro chiaro */
+      --paper:    #f3ede2;   /* sfondo carta, caldo e chiaro            */
+      --ink:      #2a0c10;   /* testo / sezioni scure (oxblood quasi nero) */
+      --ink-soft: #6e4a44;   /* testo attenuato                          */
+      --amber:    #e8982e;   /* accento caldo principale                 */
+      --peri:     #8087b5;   /* accento secondario (periwinkle)          */
+      --line:     rgba(42, 12, 16, 0.14); /* linee sottili               */
+
+      --font-display: 'Anton', Impact, sans-serif;
+      --font-body:    'Inter', system-ui, sans-serif;
+
+      --bordo: 10px;         /* raggio standard                          */
+      --container: 1400px;   /* larghezza massima dei contenuti          */
+      --gap: clamp(56px, 6vw, 110px); /* respiro verticale tra sezioni   */
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -43,1332 +48,765 @@
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Inter', Arial, sans-serif;
-      /* sabbia + due bagliori soffusi per dare vita allo sfondo */
-      background:
-        radial-gradient(900px 600px at 8% -5%, rgba(232,152,46,0.20), transparent 60%),
-        radial-gradient(800px 600px at 95% 8%, rgba(128,135,181,0.20), transparent 60%),
-        var(--sabbia);
-      background-attachment: fixed;
-      color: var(--oxblood);
+      font-family: var(--font-body);
+      background: var(--paper);
+      color: var(--ink);
       line-height: 1.6;
+      overflow-x: hidden;
     }
 
-    /* Titoloni: font Anton, tutto maiuscolo, molto grandi. */
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ===============================================================
+       2) TIPOGRAFIA + UTILITY
+       =============================================================== */
     .display {
-      font-family: 'Anton', Impact, sans-serif;
+      font-family: var(--font-display);
       text-transform: uppercase;
       line-height: 0.92;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
       font-weight: 400;
     }
 
-    .contenitore {
-      max-width: 100%;   /* usa tutta la larghezza dello schermo */
-      margin: 0;
-      padding: 0 5vw;    /* un po' di spazio ai lati, proporzionale */
-    }
-
-    .sezione { padding: 110px 0; }
-
-    .etichetta {
-      font-size: 13px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--ambra);
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-
-    /* Immagine segnaposto (per i punti dove non c'e ancora la foto). */
-    .immagine-segnaposto {
-      background: #c89a6a;
-      color: rgba(65,18,24,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      min-height: 220px;
-      border-radius: var(--raggio);
-    }
-
-    /* ============================================================
-       2) NAVBAR - barra flottante "a vetro" chiara (stile reference)
-       ============================================================ */
-
-    .navbar {
-      position: fixed;
-      top: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 32px);      /* larga quanto la pagina, con un filo di margine */
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 26px;
-      z-index: 100;
-      border-radius: 44px;           /* forma arrotondata a pillola */
-      /* Vetro chiaro: bianco molto trasparente + sfocatura. */
-      background: rgba(255, 255, 255, 0.55);
-      backdrop-filter: blur(18px) saturate(160%);
-      -webkit-backdrop-filter: blur(18px) saturate(160%);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      box-shadow: 0 10px 30px rgba(65, 18, 24, 0.12);
-    }
-
-    /* Logo: iconcina arrotondata + nome. */
-    .navbar .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-family: 'Anton', sans-serif;
-      font-size: 20px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--oxblood);
-    }
-
-    .navbar .logo .icona {
-      width: 40px;
-      height: 40px;
-      border-radius: 13px;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      padding: 4px;
-      box-shadow: 0 6px 14px rgba(65,18,24,0.18);
-      animation: galleggia 3s ease-in-out infinite;
-    }
-    .navbar .logo .icona img { width: 100%; height: 100%; object-fit: contain; }
-
-    .navbar .menu {
-      display: flex;
-      gap: 28px;
-      list-style: none;
-    }
-
-    .navbar .menu a {
-      color: var(--oxblood);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      position: relative;
-      transition: color 0.3s;
-    }
-    /* sottolineatura animata in sfumatura brand */
-    .navbar .menu a::after {
-      content: "";
-      position: absolute;
-      left: 0; bottom: -5px;
-      width: 0; height: 2px;
-      border-radius: 2px;
-      background: linear-gradient(90deg, var(--ambra), var(--pervinca));
-      transition: width 0.3s;
-    }
-    .navbar .menu a:hover { color: var(--ambra-cupo); }
-    .navbar .menu a:hover::after { width: 100%; }
-
-    .navbar .destra { display: flex; align-items: center; gap: 16px; }
-
-    .carrello {
-      color: var(--oxblood);
-      font-size: 14px;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      transition: color 0.3s;
-    }
-    .carrello::before {
-      content: "";
-      width: 17px; height: 17px;
-      background: var(--ambra);
-      /* sacchetto della spesa disegnato con una maschera SVG */
-      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M6 7V6a6 6 0 0 1 12 0v1h3l1 15H2L3 7h3Zm2 0h8V6a4 4 0 0 0-8 0v1Z'/%3E%3C/svg%3E") center/contain no-repeat;
-              mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M6 7V6a6 6 0 0 1 12 0v1h3l1 15H2L3 7h3Zm2 0h8V6a4 4 0 0 0-8 0v1Z'/%3E%3C/svg%3E") center/contain no-repeat;
-    }
-    .carrello:hover { color: var(--ambra-cupo); }
-    .carrello:hover::before { background: var(--ambra-cupo); }
-
-    /* Bottone bianco a pillola della navbar (come il "Login" della reference). */
-    .bottone-nav {
-      background: linear-gradient(135deg, var(--ambra), var(--ambra-cupo));
-      color: #fff;
-      border: none;
-      padding: 11px 26px;
-      border-radius: 30px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      box-shadow: 0 8px 18px rgba(232,152,46,0.35);
-      transition: transform 0.25s, box-shadow 0.25s;
-    }
-    .bottone-nav:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(232,152,46,0.45); }
-
-    /* Pulsanti. */
-    .bottone {
-      background: linear-gradient(135deg, var(--ambra), var(--ambra-cupo));
-      color: #fff;
-      border: none;
-      padding: 13px 26px;
+    .etichetta {        /* piccola etichetta in maiuscoletto */
       font-size: 12px;
-      letter-spacing: 1px;
+      letter-spacing: 2.5px;
       text-transform: uppercase;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-block;
-      border-radius: 30px;                              /* pillola */
-      box-shadow: 0 10px 24px rgba(232,152,46,0.35);    /* alone ambra */
-      transition: transform 0.25s, background 0.25s, box-shadow 0.25s;
-    }
-
-    .bottone:hover {
-      transform: translateY(-3px) scale(1.03);
-      background: linear-gradient(135deg, var(--ambra-cupo), #b86d12);
-      box-shadow: 0 16px 32px rgba(232,152,46,0.45);
-    }
-
-    /* Variante scura per i blocchi chiari. */
-    .bottone.scuro { background: linear-gradient(135deg, #5a1a22, var(--oxblood)); box-shadow: 0 10px 24px rgba(65,18,24,0.30); }
-    .bottone.scuro:hover { background: linear-gradient(135deg, var(--oxblood), #1f0408); box-shadow: 0 16px 32px rgba(65,18,24,0.40); }
-
-    @media (max-width: 850px) {
-      .navbar .menu { display: none; }
-    }
-
-    /* ============================================================
-       3) HERO - foto a tutto schermo + nome brand + payoff
-       ============================================================ */
-
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      position: relative;
-      /* Sopra la foto metto una sfumatura scura in basso,
-         cosi il testo bianco si legge bene. La foto e incorporata qui. */
-      background-image:
-        linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.75) 100%),
-        url("archive/FOTO/backgroundHOMEPAGE.webp");
-      background-size: cover;
-      background-position: center;
-      padding: 0 0 60px;
-    }
-
-    .hero .testo-hero {
-      padding: 0 40px;
-      max-width: 900px;
-      animation: salita 1s ease both;   /* entra dal basso al caricamento */
-    }
-
-    .hero .nome {
-      font-size: clamp(54px, 13vw, 170px);
-      color: var(--sabbia);
-      margin-bottom: 6px;
-    }
-
-    .hero .payoff {
-      display: inline-block;
-      font-family: 'Anton', sans-serif;
-      text-transform: uppercase;
-      font-size: clamp(15px, 3vw, 30px);
-      letter-spacing: 4px;
-      color: #fff;
-      /* pillola in vetro, come la navbar */
-      background: rgba(255,255,255,0.16);
-      border: 1px solid rgba(255,255,255,0.35);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      padding: 8px 20px;
-      border-radius: 30px;
-      margin-bottom: 22px;
-    }
-
-    .hero p {
-      color: rgba(255,255,255,0.85);
-      max-width: 460px;
-      margin-bottom: 24px;
-    }
-
-    /* ============================================================
-       4) APPARIZIONE ALLO SCROLL (animazione semplice)
-       ============================================================ */
-
-    /* === Rivelazione allo scroll ===
-       Ogni .appari parte nascosto. Le varianti cambiano la direzione
-       di entrata. Il JS aggiunge .visibile quando arriva a schermo. */
-    .appari {
-      opacity: 0;
-      transform: translateY(45px);
-      transition: opacity 0.7s ease, transform 0.75s cubic-bezier(.2,.7,.2,1), filter 0.7s ease;
-      will-change: opacity, transform;
-    }
-    .appari.da-sinistra { transform: translateX(-70px); }
-    .appari.da-destra   { transform: translateX(70px); }
-    .appari.zoom        { transform: scale(0.85); }
-    .appari.sfoca       { transform: translateY(20px); filter: blur(14px); }
-    .appari.ruota       { transform: translateY(40px) rotate(-3deg); }
-    .appari.visibile    { opacity: 1; transform: none; filter: blur(0); }
-
-    /* Barra di avanzamento dello scroll, in cima alla pagina */
-    .scroll-progress {
-      position: fixed;
-      top: 0; left: 0;
-      height: 4px;
-      width: 0;
-      background: linear-gradient(90deg, var(--ambra), var(--pervinca));
-      z-index: 200;
-    }
-
-    /* Titoli che entrano parola per parola */
-    .parola {
-      display: inline-block;
-      opacity: 0;
-      transform: translateY(45px) rotate(4deg);
-      transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.2,.7,.2,1);
-    }
-    .parola.su { opacity: 1; transform: none; }
-
-    /* Macchie di colore sfocate che si muovono in parallasse */
-    .blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(70px);
-      opacity: 0.45;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* animazioni che danno vita */
-    @keyframes salita {
-      from { opacity: 0; transform: translateY(30px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes galleggia {
-      0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-8px); }
-    }
-
-    /* indicatore "scorri" in fondo alla hero, in vetro */
-    .scroll-cue {
-      position: absolute;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255,255,255,0.18);
-      border: 1px solid rgba(255,255,255,0.4);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      color: #fff;
-      padding: 9px 18px;
-      border-radius: 30px;
-      font-size: 12px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      animation: galleggia 2.4s ease-in-out infinite;
-    }
-
-    /* ============================================================
-       5) MARQUEE (fascia scorrevole ripetuta, tipica di Dash)
-       ============================================================ */
-
-    /* Niente fasce piene: bordo sottile sopra/sotto e parole alternate
-       piene / solo contorno, per dare carattere senza blocchi di colore. */
-    .marquee {
-      background: transparent;
-      padding: 18px 0;
-      overflow: hidden;
-      white-space: nowrap;
-      border-top: 2px solid rgba(65,18,24,0.16);
-      border-bottom: 2px solid rgba(65,18,24,0.16);
-    }
-
-    .marquee-testo {
-      display: inline-block;
-      animation: scorri 22s linear infinite;
-      font-family: 'Anton', sans-serif;
-      font-size: 30px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .marquee-testo span { margin: 0 26px; color: var(--oxblood); }
-
-    /* parole pari: solo contorno (text-stroke), riempimento trasparente */
-    .marquee-testo span:nth-child(even) {
-      color: transparent;
-      -webkit-text-stroke: 1.4px var(--oxblood);
-    }
-    /* l'accento colora le parole dispari */
-    .marquee.rosa .marquee-testo span:nth-child(odd)     { color: var(--ambra); }
-    .marquee.pervinca .marquee-testo span:nth-child(odd) { color: var(--pervinca); }
-    .marquee.pervinca .marquee-testo span:nth-child(even) { -webkit-text-stroke-color: var(--pervinca); }
-
-    @keyframes scorri {
-      from { transform: translateX(0); }
-      to   { transform: translateX(-50%); }
-    }
-
-    /* ============================================================
-       6) BLOCCO ALTERNATO (foto + testo) - la spina dorsale di Dash
-       ============================================================ */
-
-    .blocco {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: center;
-    }
-
-    /* "invertito" sposta la foto a destra. */
-    .blocco.invertito .testo-blocco { order: 2; }
-    .blocco.invertito .foto-blocco  { order: 1; }
-
-    .blocco h2 {
-      font-size: clamp(40px, 7vw, 90px);
-      margin-bottom: 18px;
-    }
-
-    .blocco p {
-      color: var(--grigio);
-      max-width: 440px;
-      margin-bottom: 26px;
-      font-size: 17px;
-    }
-
-    .blocco .immagine-segnaposto {
-      min-height: 420px;
-      border-radius: var(--raggio-xl);
-      box-shadow: var(--ombra);
-      transition: transform 0.5s, box-shadow 0.5s;
-    }
-    .blocco .foto-blocco:hover .immagine-segnaposto {
-      transform: translateY(-6px) scale(1.02);
-      box-shadow: var(--ombra-xl);
-    }
-
-    @media (max-width: 800px) {
-      .blocco { grid-template-columns: 1fr; gap: 30px; }
-      .blocco.invertito .testo-blocco,
-      .blocco.invertito .foto-blocco { order: 0; }
-    }
-
-    /* ============================================================
-       7) SHOP - griglia magliette
-       ============================================================ */
-
-    .shop { color: var(--oxblood); position: relative; overflow: hidden; }
-    .shop .contenitore { position: relative; z-index: 1; }
-
-    .shop .etichetta { color: var(--ambra); }
-
-    .prodotti-griglia {
-      display: grid;
-      /* riempie tutta la larghezza disponibile: tante colonne quante ne entrano,
-         minimo ~250px, che si allargano per occupare lo spazio. */
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 28px;
-      margin-top: 40px;
-    }
-
-    .scheda {
-      background: var(--vetro);
-      backdrop-filter: blur(12px) saturate(150%);
-      -webkit-backdrop-filter: blur(12px) saturate(150%);
-      border: 1px solid rgba(255,255,255,0.6);
-      border-radius: var(--raggio);
-      box-shadow: var(--ombra);
-      overflow: hidden;
-      transition: transform 0.4s, box-shadow 0.4s;
-    }
-
-    .scheda:hover { transform: translateY(-10px) scale(1.01); box-shadow: var(--ombra-xl); }
-
-    .scheda .foto { height: 280px; overflow: hidden; position: relative; }
-
-    .scheda .foto .immagine-segnaposto {
-      height: 100%;
-      border-radius: 0;
-      background: linear-gradient(135deg, #e6c8a0, #cda273);
-      color: rgba(65,18,24,0.45);
-      transition: transform 0.5s;
-    }
-
-    .scheda:hover .foto .immagine-segnaposto { transform: scale(1.08); }
-
-    .scheda .badge {
-      position: absolute;
-      top: 12px; left: 12px;
-      background: var(--ambra);
-      color: #fff;
-      font-size: 11px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      font-weight: 700;
-      padding: 6px 14px;
-      border-radius: 30px;
-      box-shadow: 0 6px 14px rgba(65,18,24,0.20);
-      z-index: 2;
-    }
-
-    .badge.pervinca { background: var(--pervinca); }
-
-    .scheda .testo { padding: 22px; }
-    .scheda h3 { font-family: 'Anton', sans-serif; text-transform: uppercase; font-size: 24px; letter-spacing: 1px; margin-bottom: 8px; }
-    .scheda .prezzo { color: var(--ambra); font-family: 'Anton', sans-serif; font-size: 20px; margin-bottom: 6px; }
-    .scheda .dettagli { font-size: 13px; color: rgba(65,18,24,0.5); margin-bottom: 16px; }
-
-    /* La griglia si adatta da sola (auto-fit), niente override fissi. */
-
-    /* ============================================================
-       8) STRISCIA FOTO (footer, tipo Dash)
-       ============================================================ */
-
-    .striscia-foto {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 12px;
-      padding: 14px 5vw 50px;
-    }
-    .striscia-foto .immagine-segnaposto {
-      min-height: 185px;
-      border-radius: var(--raggio);
-      box-shadow: var(--ombra);
-      transition: transform 0.4s, box-shadow 0.4s;
-    }
-    .striscia-foto .immagine-segnaposto:hover {
-      transform: translateY(-6px) scale(1.03);
-      box-shadow: var(--ombra-xl);
-    }
-
-    @media (max-width: 700px) {
-      .striscia-foto { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    /* ============================================================
-       9) FOOTER
-       ============================================================ */
-
-    footer {
-      background: var(--oxblood);
-      color: var(--sabbia);
-      padding: 60px 0 30px;
-      text-align: center;
-      border-radius: var(--raggio-xl) var(--raggio-xl) 0 0;
-    }
-
-    footer .logo-grande {
-      font-family: 'Anton', sans-serif;
-      font-size: 52px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 6px;
-    }
-
-    footer .payoff-piccolo {
-      color: var(--ambra);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      font-weight: 700;
-      font-size: 14px;
-      margin-bottom: 26px;
-    }
-
-    footer .link-footer {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      flex-wrap: wrap;
-      margin-bottom: 24px;
-    }
-
-    footer .link-footer a {
-      color: var(--sabbia);
-      text-decoration: none;
-      font-size: 13px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    footer .link-footer a:hover { color: var(--ambra); }
-
-    footer .piccolo { font-size: 12px; color: rgba(242,237,227,0.5); }
-
-    /* ============================================================
-       10) IMMAGINI REALI (riempiono i segnaposto)
-       ============================================================ */
-
-    /* Tutte le foto inserite nei contenitori riempiono lo spazio
-       mantenendo le proporzioni (object-fit: cover). */
-    .foto-blocco .media,
-    .scheda .foto .media,
-    .striscia-foto .media {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    /* Nei blocchi alternati la foto ha la stessa altezza/raggio del segnaposto. */
-    .blocco .foto-blocco .media {
-      min-height: 420px;
-      border-radius: var(--raggio-xl);
-      box-shadow: var(--ombra);
-      transition: transform 0.5s, box-shadow 0.5s;
-    }
-    .blocco .foto-blocco:hover .media {
-      transform: translateY(-6px) scale(1.02);
-      box-shadow: var(--ombra-xl);
-    }
-
-    /* Nelle schede shop la foto e cliccabile. */
-    .scheda .foto { cursor: pointer; }
-    .scheda .foto .media { transition: transform 0.5s; }
-    .scheda:hover .foto .media { transform: scale(1.08); }
-
-    /* Striscia foto del footer. */
-    .striscia-foto .media {
-      min-height: 185px;
-      border-radius: var(--raggio);
-      box-shadow: var(--ombra);
-      transition: transform 0.4s, box-shadow 0.4s;
-    }
-    .striscia-foto .media:hover {
-      transform: translateY(-6px) scale(1.03);
-      box-shadow: var(--ombra-xl);
-    }
-
-    /* ============================================================
-       11) MODALE PRODOTTO (pop up con galleria + carrello)
-       ============================================================ */
-
-    .modale {
-      position: fixed;
-      inset: 0;
-      z-index: 500;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    .modale.aperta { display: flex; }
-
-    .modale-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(36,8,12,0.72);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      animation: dissolvi 0.3s ease both;
-    }
-
-    .modale-box {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 0;
-      width: min(960px, 100%);
-      max-height: 90vh;
-      background: var(--sabbia);
-      border-radius: var(--raggio-xl);
-      overflow: hidden;
-      box-shadow: var(--ombra-xl);
-      animation: salita 0.4s cubic-bezier(.2,.7,.2,1) both;
-    }
-
-    .modale-chiudi {
-      position: absolute;
-      top: 14px; right: 14px;
-      z-index: 3;
-      width: 40px; height: 40px;
-      border: none;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.85);
-      color: var(--oxblood);
-      font-size: 24px;
-      line-height: 1;
-      cursor: pointer;
-      box-shadow: var(--ombra);
-      transition: transform 0.25s, background 0.25s;
-    }
-    .modale-chiudi:hover { transform: rotate(90deg); background: #fff; }
-
-    /* Galleria a sinistra: foto grande + miniature. */
-    .modale-galleria {
-      background: #c89a6a;
-      display: flex;
-      flex-direction: column;
-    }
-    .modale-foto {
-      width: 100%;
-      flex: 1;
-      min-height: 320px;
-      max-height: 62vh;
-      object-fit: cover;
-      display: block;
-    }
-    .modale-thumbs {
-      display: flex;
-      gap: 8px;
-      padding: 12px;
-      overflow-x: auto;
-      background: rgba(65,18,24,0.06);
-    }
-    .modale-thumbs img {
-      width: 60px; height: 60px;
-      object-fit: cover;
-      border-radius: 12px;
-      cursor: pointer;
-      flex: 0 0 auto;
-      opacity: 0.6;
-      border: 2px solid transparent;
-      transition: opacity 0.25s, border-color 0.25s, transform 0.25s;
-    }
-    .modale-thumbs img:hover { opacity: 1; transform: translateY(-2px); }
-    .modale-thumbs img.attiva { opacity: 1; border-color: var(--ambra); }
-
-    /* Info a destra. */
-    .modale-info {
-      padding: 40px 34px;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-    .modale-info h3 {
-      font-size: clamp(30px, 4vw, 46px);
-      margin: 6px 0 10px;
-    }
-    .modale-info .prezzo {
-      color: var(--ambra);
-      font-family: 'Anton', sans-serif;
-      font-size: 28px;
-      margin-bottom: 10px;
-    }
-    .modale-info .dettagli {
-      font-size: 14px;
-      color: var(--grigio);
-      margin-bottom: 22px;
-    }
-
-    .taglie-titolo {
-      font-size: 12px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      font-weight: 700;
-      color: var(--oxblood);
-      margin-bottom: 10px;
-    }
-    .taglie {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 28px;
-    }
-    .taglia {
-      min-width: 46px;
-      padding: 9px 0;
-      text-align: center;
-      border: 1.5px solid rgba(65,18,24,0.25);
-      border-radius: 12px;
-      background: transparent;
-      color: var(--oxblood);
       font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
+      color: var(--ink-soft);
     }
-    .taglia:hover { border-color: var(--ambra); }
-    .taglia.scelta {
-      background: var(--oxblood);
-      border-color: var(--oxblood);
-      color: #fff;
+    .etichetta.amber { color: var(--amber); }
+
+    .container { max-width: var(--container); margin: 0 auto; padding: 0 24px; }
+    .sezione   { padding: var(--gap) 0; }
+
+    /* bottone principale (pieno) e secondario (linea) */
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      padding: 14px 26px; border-radius: var(--bordo); border: 1.5px solid var(--ink);
+      background: var(--ink); color: var(--paper); cursor: pointer;
+      transition: transform .25s ease, background .25s ease, color .25s ease;
+    }
+    .btn:hover { transform: translateY(-2px); background: var(--amber); border-color: var(--amber); color: var(--ink); }
+    .btn.ghost { background: transparent; color: var(--ink); }
+    .btn.ghost:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .btn.chiaro { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+    .btn.chiaro:hover { background: var(--amber); border-color: var(--amber); }
+
+    /* freccia "shop" testuale */
+    .link-freccia { font-weight: 600; letter-spacing: .5px; border-bottom: 1.5px solid currentColor; padding-bottom: 2px; }
+
+    /* ===============================================================
+       3) NAVBAR (fissa, minimale come la reference)
+       =============================================================== */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px clamp(18px, 4vw, 40px);
+      /* scrim sfumato: la nav (testo bianco) e leggibile sulla foto fin da subito */
+      background: linear-gradient(180deg, rgba(20,4,6,.55) 0%, rgba(20,4,6,.12) 70%, rgba(20,4,6,0) 100%);
+      transition: background .35s ease, box-shadow .35s ease, padding .35s ease;
+    }
+    /* stato "scrollato": fondo carta opaco */
+    .nav.solid { background: var(--paper); box-shadow: 0 1px 0 var(--line); padding-top: 12px; padding-bottom: 12px; }
+
+    .nav-logo { display: flex; align-items: center; gap: 11px; font-family: var(--font-display); font-size: clamp(22px, 4.5vw, 28px); white-space: nowrap; text-transform: uppercase; color: #fff; transition: color .35s ease; }
+    .nav.solid .nav-logo { color: var(--ink); }
+    .nav-logo img { width: 40px; height: 40px; border-radius: 8px; background: #fff; padding: 3px; }
+
+    .nav-menu { display: flex; gap: 32px; }
+    .nav-menu a { font-size: 17px; font-weight: 500; color: #fff; transition: color .35s ease, opacity .2s; }
+    .nav.solid .nav-menu a { color: var(--ink); }
+    .nav-menu a:hover { opacity: .65; }
+
+    .nav-dx { display: flex; align-items: center; gap: 20px; }
+    .nav .btn { font-size: 14px; }
+    .nav-cart { font-size: 16px; font-weight: 600; white-space: nowrap; color: #fff; cursor: pointer; transition: color .35s ease; }
+    .nav.solid .nav-cart { color: var(--ink); }
+
+    .nav-burger { display: none; flex-direction: column; gap: 5px; background: none; border: 0; cursor: pointer; }
+    .nav-burger span { width: 24px; height: 2px; background: #fff; transition: background .35s ease; }
+    .nav.solid .nav-burger span { background: var(--ink); }
+
+    @media (max-width: 860px) {
+      .nav-menu { display: none; }
+      .nav-burger { display: flex; }
     }
 
-    .modale-info .bottone { text-align: center; margin-top: auto; }
+    /* ===============================================================
+       4) HERO (foto full-bleed + testo essenziale, fade-in al load)
+       =============================================================== */
+    .hero { position: relative; height: 100vh; min-height: 560px; overflow: hidden; display: flex; align-items: flex-end; }
+    .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; will-change: transform; }
+    .hero::after { /* sfumatura per leggere il testo bianco */
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(20,4,6,.78) 0%, rgba(20,4,6,.10) 42%, rgba(20,4,6,.15) 100%);
+    }
+    .hero-testo { position: relative; z-index: 2; color: #fff; padding: 0 clamp(18px, 4vw, 40px) clamp(40px, 7vh, 90px); max-width: 760px; }
+    .hero-payoff { font-size: clamp(32px, 5.2vw, 66px); margin-bottom: 22px; }
 
+    /* animazione di entrata della hero */
+    .hero-testo > * { opacity: 0; transform: translateY(26px); animation: heroUp .9s cubic-bezier(.2,.7,.2,1) forwards; }
+    .hero-testo > *:nth-child(1) { animation-delay: .15s; }
+    .hero-testo > *:nth-child(2) { animation-delay: .30s; }
+    .hero-testo > *:nth-child(3) { animation-delay: .45s; }
+    .hero-testo > *:nth-child(4) { animation-delay: .60s; }
+    @keyframes heroUp { to { opacity: 1; transform: none; } }
+
+    /* ===============================================================
+       5) MARQUEE (fascia scorrevole — attributi e frasi)
+       =============================================================== */
+    .marquee { overflow: hidden; white-space: nowrap; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .marquee.scuro { background: var(--ink); color: var(--paper); border-color: transparent; }
+    .marquee-track { display: inline-flex; align-items: center; animation: scorri 32s linear infinite; }
+    .marquee:hover .marquee-track { animation-play-state: paused; }
+    .marquee-item { font-family: var(--font-display); text-transform: uppercase; font-size: clamp(20px, 2.4vw, 34px); padding: 18px 0; }
+    .marquee-item + .marquee-item { margin-left: 0; }
+    .marquee-sep { color: var(--amber); margin: 0 28px; font-size: clamp(16px, 2vw, 26px); }
+    @keyframes scorri { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ===============================================================
+       6) STATEMENT full-bleed (titolo grande su immagine)
+       =============================================================== */
+    .statement { position: relative; min-height: 78vh; display: grid; place-items: center; text-align: center; overflow: hidden; color: #fff; }
+    .statement img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; will-change: transform; }
+    .statement::after { content: ""; position: absolute; inset: 0; background: rgba(20,4,6,.5); }
+    .statement-testo { position: relative; z-index: 2; padding: 60px 24px; max-width: 1000px; }
+    .statement-testo h2 { font-size: clamp(40px, 8vw, 110px); margin: 16px 0 22px; }
+    .statement-testo .etichetta { color: rgba(255,255,255,.85); }
+    .statement-testo p { max-width: 560px; margin: 0 auto 26px; color: rgba(255,255,255,.9); }
+
+    /* ===============================================================
+       7) PRODOTTI (griglia pulita, hover fronte->retro, click = modale)
+       =============================================================== */
+    .testa-sezione { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 40px; flex-wrap: wrap; }
+    .testa-sezione h2 { font-size: clamp(34px, 5vw, 68px); margin-top: 10px; }
+
+    .griglia-prodotti { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 2.6vw, 40px); }
+    @media (max-width: 860px) { .griglia-prodotti { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 540px) { .griglia-prodotti { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; } }
+
+    .prodotto { cursor: pointer; }
+    .prodotto-foto {
+      position: relative; aspect-ratio: 1122 / 1402; overflow: hidden;
+      border-radius: var(--bordo); background: #e6d8c2;
+    }
+    .prodotto-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .prodotto-foto .retro  { z-index: 0; transform: scale(1.04); transition: transform 1s cubic-bezier(.2,.7,.2,1); }
+    .prodotto-foto .fronte { z-index: 1; transition: opacity .6s ease; }
+    .prodotto:hover .fronte { opacity: 0; }
+    .prodotto:hover .retro  { transform: scale(1); }
+    .prodotto-foto .tag {
+      position: absolute; top: 14px; left: 14px; z-index: 2;
+      background: var(--paper); color: var(--ink);
+      font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+      padding: 6px 11px; border-radius: 6px;
+    }
+    .prodotto-info { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-top: 16px; }
+    .prodotto-info h3 { font-family: var(--font-display); text-transform: uppercase; font-size: clamp(17px, 1.4vw, 22px); letter-spacing: .4px; }
+    .prodotto-info .prezzo { font-family: var(--font-display); font-size: clamp(17px, 1.4vw, 22px); }
+    .prodotto-info .tipo { font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
+
+    /* ===============================================================
+       8) TRUST (riga a 4 colonne con vantaggi)
+       =============================================================== */
+    .trust { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .trust-griglia { display: grid; grid-template-columns: repeat(4, 1fr); }
+    .trust-cella { padding: 40px 24px; text-align: center; border-left: 1px solid var(--line); }
+    .trust-cella:first-child { border-left: 0; }
+    .trust-cella h4 { font-family: var(--font-display); text-transform: uppercase; font-size: 18px; letter-spacing: .5px; margin-bottom: 8px; }
+    .trust-cella p { font-size: 13px; color: var(--ink-soft); }
     @media (max-width: 760px) {
-      .modale-box {
-        grid-template-columns: 1fr;
-        max-height: 92vh;
-        overflow-y: auto;
-      }
-      .modale-foto { max-height: 42vh; }
+      .trust-griglia { grid-template-columns: repeat(2, 1fr); }
+      .trust-cella:nth-child(odd) { border-left: 0; }
+      .trust-cella:nth-child(n+3) { border-top: 1px solid var(--line); }
     }
 
-    /* Avviso "aggiunto al carrello" (toast). */
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: 30px;
-      /* A riposo e completamente invisibile (non dipende dall'altezza). */
-      opacity: 0;
-      visibility: hidden;
-      transform: translate(-50%, 20px);
-      z-index: 600;
-      background: var(--oxblood);
-      color: var(--sabbia);
-      padding: 14px 24px;
-      border-radius: 30px;
-      font-weight: 600;
-      font-size: 14px;
-      box-shadow: var(--ombra-xl);
-      pointer-events: none;
-      transition: transform 0.4s cubic-bezier(.2,.7,.2,1), opacity 0.4s, visibility 0.4s;
+    /* ===============================================================
+       9) STORIA — carosello orizzontale (slide full-bleed + frecce)
+       =============================================================== */
+    .storia { position: relative; }
+    .storia-viewport { overflow: hidden; }
+    .storia-track { display: flex; transition: transform .7s cubic-bezier(.4,0,.1,1); }
+    /* slide a due colonne: foto INTERA (object-fit: contain, niente crop)
+       accanto al testo, su fondo scuro. Sfrutta tutta la larghezza. */
+    .storia-slide {
+      flex: 0 0 100%; min-height: 66vh;
+      display: grid; grid-template-columns: 1.05fr .95fr; align-items: center;
+      gap: clamp(20px, 4vw, 70px);
+      padding: clamp(36px, 6vh, 80px) clamp(24px, 5vw, 80px);
+      background: var(--ink); color: var(--paper);
     }
-    .toast.mostra {
-      opacity: 1;
-      visibility: visible;
-      transform: translate(-50%, 0);
-    }
-
-    @keyframes dissolvi { from { opacity: 0; } to { opacity: 1; } }
-
-    /* ============================================================
-       12) SEZIONI MENO PIATTE - profondita, cornici e decori
-       ============================================================ */
-
-    /* Le sezioni decorate ospitano i blob sfocati senza farli sbordare. */
-    .sezione-decorata { position: relative; overflow: hidden; }
-    .sezione-decorata .contenitore { position: relative; z-index: 2; }
-
-    /* Pannello "a vetro" dietro al testo dei blocchi: niente piu testo nudo
-       sullo sfondo piatto, ma una scheda con sfumatura e ombra. */
-    .blocco .testo-blocco {
-      position: relative;
-      padding: 38px 40px;
-      border-radius: var(--raggio-xl);
-      background:
-        linear-gradient(160deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15));
-      border: 1px solid rgba(255,255,255,0.55);
-      box-shadow: var(--ombra);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-    }
-    /* piccola barra ambra di accento in alto a sinistra del pannello */
-    .blocco .testo-blocco::before {
-      content: "";
-      position: absolute;
-      top: 30px; left: 0;
-      width: 5px; height: 46px;
-      border-radius: 0 6px 6px 0;
-      background: linear-gradient(var(--ambra), var(--pervinca));
+    .storia-slide img { width: 100%; height: clamp(320px, 48vh, 540px); object-fit: contain; }
+    .storia-cont { max-width: 540px; }
+    .storia-cont h3 { font-size: clamp(30px, 4vw, 60px); margin: 14px 0 18px; }
+    .storia-cont .etichetta { color: rgba(243,237,226,.7); }
+    .storia-cont p { color: rgba(243,237,226,.9); }
+    @media (max-width: 760px) {
+      .storia-slide { grid-template-columns: 1fr; text-align: center; }
+      .storia-cont { margin: 0 auto; }
     }
 
-    /* Cornice colorata sfalsata dietro le foto dei blocchi: da profondita. */
-    .blocco .foto-blocco { position: relative; }
-    .blocco .foto-blocco::before {
-      content: "";
-      position: absolute;
-      inset: 22px -22px -22px 22px;
-      border-radius: var(--raggio-xl);
-      background: linear-gradient(135deg, var(--ambra), var(--pervinca));
-      opacity: 0.30;
-      z-index: 0;
-      transition: transform 0.5s;
+    .storia-frecce { position: absolute; z-index: 3; bottom: 28px; right: 28px; display: flex; gap: 12px; }
+    .storia-freccia { width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.6); background: rgba(20,4,6,.25); color: #fff; cursor: pointer; font-size: 18px; display: grid; place-items: center; transition: background .25s, transform .25s; }
+    .storia-freccia:hover { background: var(--amber); border-color: var(--amber); color: var(--ink); transform: translateY(-2px); }
+    .storia-dots { position: absolute; z-index: 3; bottom: 40px; left: 28px; display: flex; gap: 8px; }
+    .storia-dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.45); cursor: pointer; transition: background .25s, transform .25s; }
+    .storia-dot.attivo { background: var(--amber); transform: scale(1.25); }
+
+    /* ===============================================================
+       10) VALORI (testo a punti + immagine)
+       =============================================================== */
+    .valori { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(30px, 5vw, 80px); align-items: center; }
+    @media (max-width: 820px) { .valori { grid-template-columns: 1fr; } }
+    .valori h2 { font-size: clamp(32px, 5vw, 64px); margin: 14px 0 26px; }
+    .valori ul { list-style: none; display: grid; gap: 16px; margin-bottom: 28px; }
+    .valori li { display: flex; gap: 14px; align-items: baseline; font-size: 16px; }
+    .valori li::before { content: ""; flex: 0 0 auto; width: 18px; height: 2px; background: var(--amber); transform: translateY(-5px); }
+    /* foto INTERA (contain) con passe-partout: nessun contenuto tagliato */
+    .valori-foto img { width: 100%; height: clamp(400px, 46vw, 580px); object-fit: contain; background: #ece0cb; border-radius: var(--bordo); }
+
+    /* ===============================================================
+       11) TESTIMONIAL (card della community)
+       =============================================================== */
+    .testi-griglia { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    @media (max-width: 860px) { .testi-griglia { grid-template-columns: 1fr; max-width: 560px; margin: 0 auto; } }
+    .testi-card { background: #fff; border: 1px solid var(--line); border-radius: var(--bordo); padding: 28px; transition: transform .3s ease, box-shadow .3s ease; }
+    .testi-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(42,12,16,.10); }
+    .testi-stelle { color: var(--amber); letter-spacing: 3px; margin-bottom: 14px; }
+    .testi-card p { font-size: 15px; margin-bottom: 18px; }
+    .testi-autore { font-weight: 700; font-size: 14px; }
+
+    /* ===============================================================
+       12) SPOTLIGHT (immagine + testo, una colonna domina)
+       =============================================================== */
+    .spotlight { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(30px, 5vw, 70px); align-items: center; }
+    @media (max-width: 820px) { .spotlight { grid-template-columns: 1fr; } }
+    .spotlight-foto img { width: 100%; height: clamp(360px, 44vw, 560px); object-fit: contain; background: #ece0cb; border-radius: var(--bordo); }
+    .spotlight h2 { font-size: clamp(32px, 5vw, 64px); margin: 14px 0 20px; }
+    .spotlight p { color: var(--ink-soft); max-width: 460px; margin-bottom: 26px; }
+
+    /* ===============================================================
+       13) SOCIAL CTA + FOOTER
+       =============================================================== */
+    .social { text-align: center; }
+    .social h2 { font-size: clamp(28px, 4.5vw, 56px); margin-bottom: 14px; }
+    .social .hashtag { color: var(--amber); font-weight: 700; letter-spacing: 1px; }
+
+    .footer { background: var(--ink); color: var(--paper); padding: 70px 0 40px; }
+    .footer-griglia { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; }
+    @media (max-width: 820px) { .footer-griglia { grid-template-columns: 1fr 1fr; gap: 30px; } }
+    @media (max-width: 480px) { .footer-griglia { grid-template-columns: 1fr; } }
+    .footer-logo { font-family: var(--font-display); font-size: 30px; text-transform: uppercase; margin-bottom: 10px; }
+    .footer h5 { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: rgba(243,237,226,.55); margin-bottom: 16px; }
+    .footer ul { list-style: none; display: grid; gap: 10px; }
+    .footer a { font-size: 14px; opacity: .9; }
+    .footer a:hover { opacity: 1; color: var(--amber); }
+    .footer p.small { font-size: 14px; opacity: .8; max-width: 280px; }
+    .footer-bottom { margin-top: 50px; padding-top: 22px; border-top: 1px solid rgba(243,237,226,.18); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 13px; opacity: .7; }
+
+    /* ===============================================================
+       14) MODALE PRODOTTO (galleria + taglia + aggiungi al carrello)
+       =============================================================== */
+    .modale { position: fixed; inset: 0; z-index: 200; display: none; place-items: center; padding: 20px; }
+    .modale.aperta { display: grid; }
+    .modale-bg { position: absolute; inset: 0; background: rgba(20,4,6,.7); backdrop-filter: blur(4px); }
+    .modale-box {
+      position: relative; z-index: 1; width: min(920px, 100%); max-height: 90vh; overflow: hidden;
+      background: var(--paper); border-radius: 14px; display: grid; grid-template-columns: 1fr 1fr;
+      animation: modaleUp .35s cubic-bezier(.2,.7,.2,1);
     }
-    .blocco .foto-blocco:hover::before { transform: translate(-8px, -8px); }
-    .blocco .foto-blocco .media { position: relative; z-index: 1; }
-    .blocco.invertito .foto-blocco::before { inset: 22px 22px -22px -22px; }
+    @keyframes modaleUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+    @media (max-width: 720px) { .modale-box { grid-template-columns: 1fr; max-height: 92vh; overflow-y: auto; } }
 
-    /* Sfondo alternato per la sezione "tecnica/liberta": una fascia piu calda
-       con sfumatura, cosi le sezioni non sono tutte dello stesso colore. */
-    .sezione.calda {
-      background:
-        radial-gradient(700px 500px at 90% 10%, rgba(232,152,46,0.18), transparent 60%),
-        linear-gradient(180deg, rgba(65,18,24,0.04), rgba(128,135,181,0.10));
+    .modale-galleria { background: #e6d8c2; }
+    .modale-galleria .grande { width: 100%; aspect-ratio: 1122 / 1402; object-fit: cover; }
+    .modale-thumbs { display: flex; gap: 8px; padding: 10px; flex-wrap: wrap; }
+    .modale-thumbs img { width: 54px; height: 64px; object-fit: cover; border-radius: 6px; cursor: pointer; opacity: .55; transition: opacity .2s; }
+    .modale-thumbs img.attivo { opacity: 1; outline: 2px solid var(--ink); }
+
+    .modale-dett { padding: clamp(24px, 3vw, 40px); display: flex; flex-direction: column; }
+    .modale-dett h3 { font-family: var(--font-display); text-transform: uppercase; font-size: clamp(26px, 3vw, 40px); }
+    .modale-dett .prezzo { font-family: var(--font-display); font-size: 26px; margin: 8px 0 4px; }
+    .modale-dett .tipo { font-size: 13px; color: var(--ink-soft); margin-bottom: 18px; }
+    .modale-dett .quote { font-style: italic; color: var(--ink-soft); border-left: 2px solid var(--amber); padding-left: 14px; margin-bottom: 22px; }
+    .modale-taglie { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .taglia { width: 46px; height: 46px; border: 1.5px solid var(--line); border-radius: 8px; background: none; cursor: pointer; font-weight: 600; transition: all .2s; }
+    .taglia:hover { border-color: var(--ink); }
+    .taglia.scelta { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .modale-chiudi { position: absolute; top: 12px; right: 12px; z-index: 2; width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--paper); cursor: pointer; font-size: 18px; }
+
+    /* toast "aggiunto al carrello" */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 120%); z-index: 300; background: var(--ink); color: var(--paper); padding: 14px 22px; border-radius: var(--bordo); font-size: 14px; font-weight: 600; transition: transform .4s cubic-bezier(.2,.7,.2,1); }
+    .toast.su { transform: translate(-50%, 0); }
+
+    /* ===============================================================
+       15) REVEAL ALLO SCROLL (animazione di entrata generica)
+       =============================================================== */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); }
+    .reveal.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+      .reveal { opacity: 1; transform: none; }
     }
-
-    /* I blob decorativi (riuso lo stile .blob gia presente). */
-    .blob.tenue { opacity: 0.30; }
-
-    @media (max-width: 800px) {
-      .blocco .testo-blocco { padding: 28px 26px; }
-      .blocco .foto-blocco::before,
-      .blocco.invertito .foto-blocco::before { inset: 14px -14px -14px 14px; }
-    }
-
   </style>
 </head>
 
 <body>
 
-  <div class="scroll-progress" id="barraScroll"></div>
-
-  <!-- ========================= NAVBAR ========================= -->
-  <nav class="navbar">
-    <div class="logo"><span class="icona">MW</span> Mr Wes-Tee</div>
-    <ul class="menu">
-      <li><a href="#about">About</a></li>
-      <li><a href="#shop">Shop</a></li>
-      <li><a href="#crew">Crew</a></li>
-      <li><a href="#newsletter">Contatti</a></li>
-    </ul>
-    <div class="destra">
-      <span class="carrello">Carrello (0)</span>
-      <a href="#shop" class="bottone-nav">Acquista ora</a>
+  <!-- ============================ NAV ============================ -->
+  <nav class="nav" id="nav">
+    <a class="nav-logo" href="#top"><img src="archive/FOTO/patch.webp" alt="Logo Mr Wes-Tee" /> Mr Wes-Tee</a>
+    <div class="nav-menu">
+      <a href="#shop">Shop</a>
+      <a href="#storia">Storia</a>
+      <a href="#valori">Valori</a>
+      <a href="#contatti">Contatti</a>
+    </div>
+    <div class="nav-dx">
+      <span class="nav-cart" id="navCart">Carrello (0)</span>
+      <a href="#shop" class="btn chiaro" style="padding:10px 18px;">Acquista</a>
+      <button class="nav-burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
 
-  <!-- ========================= HERO (foto nella landing) ========================= -->
-  <header class="hero">
-    <div class="testo-hero">
-      <h1 class="display nome">Mr Wes-Tee</h1>
-      <div class="payoff">The Tee-Shirt Dropout</div>
-      <p>Testo segnaposto di benvenuto. Solo magliette, fatte con attitudine. Sostituiscilo con il tuo.</p>
-      <a href="#shop" class="bottone">Scopri la collezione</a>
+  <!-- ============================ HERO =========================== -->
+  <header class="hero" id="top">
+    <img class="hero-img" src="archive/FOTO/bHOMEPAGE.webp" alt="Mr Wes-Tee — la collezione" data-parallax="0.04" />
+    <div class="hero-testo">
+      <h1 class="display hero-payoff">The Tee-Shirt Dropout</h1>
+      <a href="#shop" class="btn chiaro">Scopri la collezione</a>
     </div>
-    <div class="scroll-cue">Scorri &#8595;</div>
   </header>
 
-  <!-- ========================= MARQUEE (rosa) ========================= -->
-  <div class="marquee rosa">
-    <div class="marquee-testo">
-      <span>The Tee-Shirt Dropout &#10070;</span>
-      <span>Join The Dropout Club &#10070;</span>
-      <span>Solo Magliette &#10070;</span>
-      <span>The Tee-Shirt Dropout &#10070;</span>
-      <span>Join The Dropout Club &#10070;</span>
-      <span>Solo Magliette &#10070;</span>
+  <!-- ===================== MARQUEE ATTRIBUTI ===================== -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track" data-marquee>
+      <span class="marquee-item">Cotone 240g</span><span class="marquee-sep">✦</span>
+      <span class="marquee-item">Vestibilità oversize</span><span class="marquee-sep">✦</span>
+      <span class="marquee-item">Stampa fronte & retro</span><span class="marquee-sep">✦</span>
+      <span class="marquee-item">Edizione limitata</span><span class="marquee-sep">✦</span>
+      <span class="marquee-item">Unisex</span><span class="marquee-sep">✦</span>
     </div>
   </div>
 
-  <!-- ========================= BLOCCO 1 (about) ========================= -->
-  <section class="sezione sezione-decorata" id="about">
-    <div class="blob tenue" data-parallax="0.10" style="width:340px;height:340px;background:var(--ambra);top:-90px;right:-70px;"></div>
-    <div class="blob tenue" data-parallax="0.16" style="width:280px;height:280px;background:var(--pervinca);bottom:-90px;left:-60px;"></div>
-    <div class="contenitore blocco">
-      <div class="testo-blocco appari da-sinistra">
-        <p class="etichetta">01 - About</p>
-        <h2 class="display titolo-anim">Dress Like A Dropout</h2>
-        <p>Paragrafo segnaposto con attitudine. Qui racconti chi e Mr Wes-Tee e perche fate solo magliette. Sostituisci con il testo vero.</p>
-        <a href="#shop" class="bottone scuro">Vedi lo shop</a>
+  <!-- ======================== STATEMENT ========================= -->
+  <section class="statement">
+    <img src="archive/FOTO/maglia%205%20retro.webp" alt="" data-parallax="0.15" />
+    <div class="statement-testo reveal">
+      <p class="etichetta">01 — Il manifesto</p>
+      <h2 class="display">Dress like<br>a dropout</h2>
+      <p>Niente loghi urlati: solo tagli oversize, cotone da 240 grammi e stampe che hanno qualcosa da dire. Un capo, mille modi di portarlo.</p>
+      <a href="#shop" class="link-freccia">Entra nello shop →</a>
+    </div>
+  </section>
+
+  <!-- ========================= PRODOTTI ========================= -->
+  <section class="sezione" id="shop">
+    <div class="container">
+      <div class="testa-sezione reveal">
+        <div>
+          <p class="etichetta amber">02 — La collezione</p>
+          <h2 class="display">Trova la tua maglietta</h2>
+        </div>
+        <p style="max-width:340px;color:var(--ink-soft);">Sei capi, ognuno con una frase stampata sul retro. Passa il mouse sul capo per vedere la stampa, aprilo per le taglie.</p>
       </div>
-      <div class="foto-blocco appari da-destra">
-        <img class="media" src="archive/FOTO/maglia%203%20fronte.webp" alt="Maglietta Mr Wes-Tee" loading="lazy">
+      <div class="griglia-prodotti" id="grigliaProdotti"><!-- generata da JS --></div>
+    </div>
+  </section>
+
+  <!-- ========================== TRUST =========================== -->
+  <section class="trust">
+    <div class="container">
+      <div class="trust-griglia">
+        <div class="trust-cella reveal"><h4>Spedizione gratuita</h4><p>Su tutti gli ordini sopra i 70€</p></div>
+        <div class="trust-cella reveal"><h4>Pronto da regalare</h4><p>Confezione curata inclusa</p></div>
+        <div class="trust-cella reveal"><h4>Reso semplice</h4><p>30 giorni, senza pensieri</p></div>
+        <div class="trust-cella reveal"><h4>-10% primo ordine</h4><p>Iscrivendoti alla crew</p></div>
       </div>
     </div>
   </section>
 
-  <!-- ========================= BLOCCO 2 (invertito) - liberta ========================= -->
-  <section class="sezione calda sezione-decorata">
-    <div class="blob tenue" data-parallax="0.14" style="width:320px;height:320px;background:var(--pervinca);top:-80px;left:-70px;"></div>
-    <div class="blob tenue" data-parallax="0.10" style="width:300px;height:300px;background:var(--ambra);bottom:-100px;right:-60px;"></div>
-    <div class="contenitore blocco invertito">
-      <div class="testo-blocco appari da-destra">
-        <p class="etichetta">02 - Liberta</p>
-        <h2 class="display titolo-anim">Be Free To Express Yourself</h2>
-        <p>Paragrafo segnaposto sulla liberta. Indossa cio che sei: ogni maglietta e un modo per esprimerti senza filtri. Sostituisci con il testo vero.</p>
-        <a href="#shop" class="bottone scuro">Esprimiti</a>
+  <!-- ===================== STORIA (carosello) =================== -->
+  <section class="storia" id="storia">
+    <div class="storia-viewport">
+      <div class="storia-track" id="storiaTrack">
+
+        <div class="storia-slide">
+          <img src="archive/FOTO/borsaacquisti.webp" alt="" />
+          <div class="storia-cont">
+            <p class="etichetta">Chi siamo</p>
+            <h3 class="display">Un'ossessione: la tee perfetta</h3>
+            <p>Mr Wes-Tee nasce dalla ricerca della maglietta giusta — quella che metti e non togli più. Cotone pesante, tagli oversize, stampe che parlano.</p>
+          </div>
+        </div>
+
+        <div class="storia-slide">
+          <img src="archive/FOTO/bee%20free%20to%20express%20yourself.png" alt="" />
+          <div class="storia-cont">
+            <p class="etichetta">La filosofia</p>
+            <h3 class="display">Be free to express yourself</h3>
+            <p>Ogni stampa è una dichiarazione. La indossi quando vuoi ricordare a te stesso chi sei, senza chiedere il permesso a nessuno.</p>
+          </div>
+        </div>
+
+        <div class="storia-slide">
+          <img src="archive/FOTO/join%20the%20dropout%20crew.png" alt="" />
+          <div class="storia-cont">
+            <p class="etichetta">Il club</p>
+            <h3 class="display">Join the dropout crew</h3>
+            <p>Accesso anticipato ai drop, capi in edizione limitata e sconti riservati. Lasciaci la tua email, al resto pensiamo noi.</p>
+          </div>
+        </div>
+
       </div>
-      <div class="foto-blocco appari da-sinistra">
-        <img class="media" src="archive/FOTO/bee%20free%20to%20express%20yourself.png" alt="Be free to express yourself" loading="lazy">
+    </div>
+    <div class="storia-dots" id="storiaDots"></div>
+    <div class="storia-frecce">
+      <button class="storia-freccia" data-storia="-1" aria-label="Precedente">‹</button>
+      <button class="storia-freccia" data-storia="1" aria-label="Successivo">›</button>
+    </div>
+  </section>
+
+  <!-- ===================== MARQUEE FRASI (scuro) ================ -->
+  <div class="marquee scuro" aria-hidden="true">
+    <div class="marquee-track" data-marquee>
+      <span class="marquee-item">Join the dropout club</span><span class="marquee-sep">✦</span>
+      <span class="marquee-item">Drop out, stand out</span><span class="marquee-sep">✦</span>
+      <span class="marquee-item">The tee-shirt dropout</span><span class="marquee-sep">✦</span>
+    </div>
+  </div>
+
+  <!-- ========================== VALORI ========================== -->
+  <section class="sezione" id="valori">
+    <div class="container valori">
+      <div class="reveal">
+        <p class="etichetta amber">03 — Perché noi</p>
+        <h2 class="display">Fatte per durare</h2>
+        <ul>
+          <li>Cotone pesante 240 g/m², jersey compatto</li>
+          <li>Vestibilità oversize, unisex, taglie S–XL</li>
+          <li>Stampe serigrafiche fronte e retro</li>
+          <li>Drop in edizione limitata, mai ristampati</li>
+        </ul>
+        <a href="#shop" class="btn">Vedi i capi</a>
+      </div>
+      <div class="valori-foto reveal">
+        <img src="archive/FOTO/maglia%201%20retro.webp" alt="Dettaglio stampa Mr Wes-Tee" />
       </div>
     </div>
   </section>
 
-  <!-- ========================= MARQUEE (scuro) ========================= -->
-  <div class="marquee pervinca">
-    <div class="marquee-testo">
-      <span>Mr Wes-Tee &#10070;</span>
-      <span>Drop Out, Stand Out &#10070;</span>
-      <span>The Tee-Shirt Dropout &#10070;</span>
-      <span>Mr Wes-Tee &#10070;</span>
-      <span>Drop Out, Stand Out &#10070;</span>
-      <span>The Tee-Shirt Dropout &#10070;</span>
-    </div>
-  </div>
-
-  <!-- ========================= SHOP ========================= -->
-  <section class="sezione shop" id="shop">
-    <div class="blob" data-parallax="0.12" style="width:360px;height:360px;background:var(--ambra);top:-80px;left:-60px;"></div>
-    <div class="blob" data-parallax="0.20" style="width:320px;height:320px;background:var(--pervinca);bottom:-100px;right:-50px;"></div>
-    <div class="contenitore">
-      <p class="etichetta appari">03 - Shop</p>
-      <h2 class="display titolo-anim" style="font-size: clamp(40px,6vw,80px);">Trova la tua maglietta</h2>
-
-      <div class="prodotti-griglia cascata" id="grigliaProdotti">
-        <!-- Le schede vengono generate dal catalogo in JavaScript. -->
+  <!-- ======================= TESTIMONIAL ======================== -->
+  <section class="sezione">
+    <div class="container">
+      <div class="testa-sezione reveal">
+        <div>
+          <p class="etichetta amber">04 — La crew dice</p>
+          <h2 class="display">Mr Wes-Tee & te</h2>
+        </div>
+      </div>
+      <div class="testi-griglia">
+        <div class="testi-card reveal"><div class="testi-stelle">★★★★★</div><p>"Vestibilità perfetta e la stampa sul retro è una bomba. Non la tolgo più."</p><div class="testi-autore">— Marco T.</div></div>
+        <div class="testi-card reveal"><div class="testi-stelle">★★★★★</div><p>"Cotone serio, pesante al punto giusto. Si vede che è un altro livello."</p><div class="testi-autore">— Giulia R.</div></div>
+        <div class="testi-card reveal"><div class="testi-stelle">★★★★★</div><p>"Comprata la 2006 Dropout, è diventata la mia preferita in assoluto."</p><div class="testi-autore">— Dario M.</div></div>
       </div>
     </div>
   </section>
 
-  <!-- ========================= BLOCCO 3 (crew / call to action) ========================= -->
-  <section class="sezione sezione-decorata" id="crew">
-    <div class="blob tenue" data-parallax="0.12" style="width:340px;height:340px;background:var(--ambra);top:-100px;left:-70px;"></div>
-    <div class="blob tenue" data-parallax="0.18" style="width:300px;height:300px;background:var(--pervinca);bottom:-90px;right:-60px;"></div>
-    <div class="contenitore blocco">
-      <div class="testo-blocco appari da-sinistra">
-        <p class="etichetta">04 - Il club</p>
-        <h2 class="display titolo-anim">Join The Dropout Crew</h2>
-        <p>Paragrafo segnaposto. Entra nella crew di Mr Wes-Tee: nuove uscite, drop a sorpresa, sconti. Sostituisci con il testo vero.</p>
-        <a href="#newsletter" class="bottone">Iscriviti</a>
-      </div>
-      <div class="foto-blocco appari da-destra">
-        <img class="media" src="archive/FOTO/join%20the%20dropout%20crew.png" alt="Join the dropout crew" loading="lazy">
+  <!-- ========================= SPOTLIGHT ======================== -->
+  <section class="sezione">
+    <div class="container spotlight">
+      <div class="spotlight-foto reveal"><img src="archive/FOTO/maglia%206%20retro.webp" alt="Starry Dropout" /></div>
+      <div class="reveal">
+        <p class="etichetta amber">In evidenza</p>
+        <h2 class="display">Starry Dropout</h2>
+        <p>Stampa artistica "starry night" con il Dropout Bear sul retro. Edizione limitata, cotone pesante 240 g/m².</p>
+        <a href="#shop" class="btn">Acquista — €49</a>
       </div>
     </div>
   </section>
 
-  <!-- ========================= STRISCIA FOTO ========================= -->
-  <div class="striscia-foto cascata">
-    <img class="media appari" src="archive/FOTO/maglia%201%20grafica%201.webp" alt="Mr Wes-Tee" loading="lazy">
-    <img class="media appari" src="archive/FOTO/maglia%202%20grafica%201.webp" alt="Mr Wes-Tee" loading="lazy">
-    <img class="media appari" src="archive/FOTO/maglia%203%20grafica%201.webp" alt="Mr Wes-Tee" loading="lazy">
-    <img class="media appari" src="archive/FOTO/maglia%204%20grafica%201.webp" alt="Mr Wes-Tee" loading="lazy">
-    <img class="media appari" src="archive/FOTO/maglia%202%20retro.webp" alt="Mr Wes-Tee" loading="lazy">
-  </div>
-
-  <!-- ========================= MARQUEE FINALE ========================= -->
-  <div class="marquee rosa">
-    <div class="marquee-testo">
-      <span>Join The Dropout Club &#10070;</span>
-      <span>Join The Dropout Club &#10070;</span>
-      <span>Join The Dropout Club &#10070;</span>
-      <span>Join The Dropout Club &#10070;</span>
-      <span>Join The Dropout Club &#10070;</span>
-      <span>Join The Dropout Club &#10070;</span>
+  <!-- ========================= SOCIAL =========================== -->
+  <section class="sezione social">
+    <div class="container reveal">
+      <p class="etichetta amber">Il manifesto</p>
+      <h2 class="display">Wear what you can't say</h2>
+      <p class="hashtag">@mrwestee · #dropoutcrew · #thetshirtdropout</p>
     </div>
-  </div>
+  </section>
 
-  <!-- ========================= FOOTER ========================= -->
-  <footer id="newsletter">
-    <div class="contenitore">
-      <div class="logo-grande">Mr Wes-Tee</div>
-      <div class="payoff-piccolo">The Tee-Shirt Dropout</div>
-
-      <div class="link-footer">
-        <a href="#about">About</a>
-        <a href="#shop">Shop</a>
-        <a href="#crew">Crew</a>
-        <a href="#">Instagram</a>
-        <a href="#">Contatti</a>
+  <!-- ========================== FOOTER ========================== -->
+  <footer class="footer" id="contatti">
+    <div class="container">
+      <div class="footer-griglia">
+        <div>
+          <div class="footer-logo">Mr Wes-Tee</div>
+          <p class="small">The Tee-Shirt Dropout. Magliette oversize stampate con le frasi che contano.</p>
+        </div>
+        <div>
+          <h5>Shop</h5>
+          <ul>
+            <li><a href="#shop">La collezione</a></li>
+            <li><a href="#storia">La storia</a></li>
+            <li><a href="#valori">I valori</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Aiuto</h5>
+          <ul>
+            <li><a href="#">Spedizioni</a></li>
+            <li><a href="#">Resi</a></li>
+            <li><a href="#">Guida taglie</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Seguici</h5>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">TikTok</a></li>
+            <li><a href="#">Newsletter</a></li>
+          </ul>
+        </div>
       </div>
-
-      <p class="piccolo">&copy; 2026 Mr Wes-Tee. Tutti i diritti riservati. &bull; Sito demo segnaposto.</p>
+      <div class="footer-bottom">
+        <span>© 2026 Mr Wes-Tee. Tutti i diritti riservati.</span>
+        <span>Spedizione gratuita sopra i 70€</span>
+      </div>
     </div>
   </footer>
 
-
-  <!-- ========================= MODALE PRODOTTO ========================= -->
-  <div class="modale" id="modale" aria-hidden="true">
-    <div class="modale-overlay" data-chiudi></div>
-    <div class="modale-box" role="dialog" aria-modal="true" aria-labelledby="modaleNome">
-      <button class="modale-chiudi" type="button" data-chiudi aria-label="Chiudi">&times;</button>
-
+  <!-- ========================= MODALE ========================== -->
+  <div class="modale" id="modale">
+    <div class="modale-bg" data-chiudi></div>
+    <div class="modale-box">
+      <button class="modale-chiudi" data-chiudi aria-label="Chiudi">✕</button>
       <div class="modale-galleria">
-        <img class="modale-foto" id="modaleFoto" src="" alt="">
+        <img class="grande" id="modaleGrande" src="" alt="" />
         <div class="modale-thumbs" id="modaleThumbs"></div>
       </div>
-
-      <div class="modale-info">
-        <p class="etichetta">Mr Wes-Tee</p>
-        <h3 class="display" id="modaleNome"></h3>
+      <div class="modale-dett">
+        <h3 id="modaleNome"></h3>
         <div class="prezzo" id="modalePrezzo"></div>
-        <p class="dettagli" id="modaleDettagli"></p>
-
-        <p class="taglie-titolo">Scegli la taglia</p>
-        <div class="taglie" id="modaleTaglie"></div>
-
-        <button class="bottone" type="button" id="modaleAggiungi">Aggiungi al carrello</button>
+        <div class="tipo" id="modaleTipo"></div>
+        <div class="quote" id="modaleQuote"></div>
+        <p class="etichetta" style="margin-bottom:10px;">Scegli la taglia</p>
+        <div class="modale-taglie" id="modaleTaglie"></div>
+        <button class="btn" id="modaleAdd" style="width:100%;justify-content:center;">Aggiungi al carrello</button>
       </div>
     </div>
   </div>
 
-  <!-- ========================= TOAST ========================= -->
-  <div class="toast" id="toast">Aggiunto al carrello</div>
+  <div class="toast" id="toast">Aggiunto al carrello ✓</div>
 
-  <!-- ============================================================
-       JAVASCRIPT - apparizione allo scroll + modale prodotto + carrello
-       ============================================================ -->
+  <!-- =============================================================
+       SCRIPT
+       ============================================================= -->
   <script>
-    // ============================================================
-    // 0) CATALOGO PRODOTTI + SCHEDE SHOP
-    //    Ogni prodotto ha tutte le sue foto: la prima e la copertina,
-    //    le altre si vedono nella galleria della modale.
-    // ============================================================
-    var BASE_FOTO = 'archive/FOTO/';
+  /* ===============================================================
+     A) CATALOGO PRODOTTI  ← UNICO PUNTO DA MODIFICARE PER I CAPI
+        - foto: i nomi file stanno in archive/FOTO/ (gli spazi vanno bene)
+        - la 1a foto della galleria fa da "fronte", l'ultima è il retro
+     =============================================================== */
+  var BASE = 'archive/FOTO/';
+  function img(nome) { return BASE + encodeURI(nome) + '.webp'; }
 
-    // I nomi file contengono spazi: encodeURI li trasforma in %20.
-    function foto(nomi) {
-      return nomi.map(function (n) { return BASE_FOTO + encodeURI(n) + '.webp'; });
-    }
+  var PRODOTTI = [
+    { nome: 'Own Best Friend', prezzo: '€39', tipo: 'Tee oversize · cotone 240g',
+      tag: '', quote: "I'm my own best friend",
+      fronte: 'malia 1 fronte', retro: 'maglia 1 retro',
+      foto: ['malia 1 fronte', 'maglia 1 retro', 'maglia 1 grafica 1', 'maglia 1 grafica 2'] },
 
-    // Ogni modello = una scheda. Ordine foto: fronte (copertina), retro, grafiche.
-    var catalogo = {
-      maglia1: {
-        nome: 'Maglia 01',
-        prezzo: '35 EUR',
-        dettagli: 'Taglie S - XXL • Fronte, retro e grafiche • 100% cotone',
-        badge: 'Nuovo',
-        foto: foto(['malia 1 fronte', 'maglia 1 retro', 'maglia 1 grafica 1', 'maglia 1 grafica 2'])
-      },
-      maglia2: {
-        nome: 'Maglia 02',
-        prezzo: '35 EUR',
-        dettagli: 'Taglie S - XXL • Fronte, retro e grafiche • 100% cotone',
-        badge: 'Best seller',
-        badgeClasse: 'pervinca',
-        foto: foto(['maglia 2 fronte', 'maglia 2 retro', 'maglia 2 grafica 1', 'maglia due grafica 2'])
-      },
-      maglia3: {
-        nome: 'Maglia 03',
-        prezzo: '40 EUR',
-        dettagli: 'Taglie S - XXL • Fronte, retro e grafiche • 100% cotone',
-        foto: foto(['maglia 3 fronte', 'maglia 3 retro', 'maglia 3 grafica 1', 'maglia 3 grafica 2'])
-      },
-      maglia4: {
-        nome: 'Maglia 04',
-        prezzo: '40 EUR',
-        dettagli: 'Taglie S - XXL • Fronte, retro e grafica • Edizione limitata',
-        badge: 'Limited',
-        foto: foto(['maglia 4 fronte', 'maglia 4 retro', 'maglia 4 grafica 1'])
-      }
-    };
+    { nome: 'Bad For My Exes', prezzo: '€39', tipo: 'Tee oversize · cotone 240g',
+      tag: 'Best seller', quote: 'I feel so bad for my exes, like imagine losing me',
+      fronte: 'maglia 2 fronte', retro: 'maglia 2 retro',
+      foto: ['maglia 2 fronte', 'maglia 2 retro', 'maglia 2 grafica 1', 'maglia due grafica 2'] },
 
-    // Genero le schede dello shop dal catalogo.
-    var griglia = document.getElementById('grigliaProdotti');
-    Object.keys(catalogo).forEach(function (chiave) {
-      var p = catalogo[chiave];
-      var scheda = document.createElement('article');
-      scheda.className = 'scheda appari';
-      scheda.setAttribute('data-prodotto', chiave);
+    { nome: 'Impress Myself', prezzo: '€42', tipo: 'Tee oversize · cotone 240g',
+      tag: '', quote: 'I dress to impress myself',
+      fronte: 'maglia 3 fronte', retro: 'maglia 3 retro',
+      foto: ['maglia 3 fronte', 'maglia 3 retro', 'maglia 3 grafica 1', 'maglia 3 grafica 2'] },
 
-      var badgeHtml = p.badge
-        ? '<div class="badge ' + (p.badgeClasse || '') + '">' + p.badge + '</div>'
-        : '';
+    { nome: 'Never Apologize', prezzo: '€45', tipo: 'Graphic tee · edizione limitata',
+      tag: 'Limited', quote: 'Never apologize for being who you are',
+      fronte: 'maglia 4 fronte', retro: 'maglia 4 retro',
+      foto: ['maglia 4 fronte', 'maglia 4 retro', 'maglia 4 grafica 1'] },
 
-      scheda.innerHTML =
-        '<div class="foto" data-apri="' + chiave + '">' + badgeHtml +
-          '<img class="media" src="' + p.foto[0] + '" alt="' + p.nome + '" loading="lazy"></div>' +
-        '<div class="testo">' +
-          '<h3>' + p.nome + '</h3>' +
-          '<div class="prezzo">' + p.prezzo + '</div>' +
-          '<div class="dettagli">' + p.dettagli + '</div>' +
-          '<button type="button" class="bottone" data-apri="' + chiave + '">Vedi e aggiungi</button>' +
-        '</div>';
+    { nome: '2006 Dropout', prezzo: '€49', tipo: 'Graphic tee · edizione limitata',
+      tag: 'Nuovo', quote: '2006 — the Dropout era',
+      fronte: 'maglia 5 fronte', retro: 'maglia 5 retro',
+      foto: ['maglia 5 fronte', 'maglia 5 retro', 'maglia 5 grafica 1', 'maglia 5 grafica 2'] },
 
-      griglia.appendChild(scheda);
+    { nome: 'Starry Dropout', prezzo: '€49', tipo: 'Art tee · edizione limitata',
+      tag: 'Art piece', quote: 'Late registration, starry night',
+      fronte: 'maglia 6 fronte', retro: 'maglia 6 retro',
+      foto: ['maglia 6 fronte', 'maglia 6 retro', 'maglia 6 grafica 1', 'maglia 6 grafica 2'] }
+  ];
+
+  var TAGLIE = ['S', 'M', 'L', 'XL'];
+
+  /* ===============================================================
+     B) GRIGLIA PRODOTTI  (generata dal catalogo)
+     =============================================================== */
+  var griglia = document.getElementById('grigliaProdotti');
+  PRODOTTI.forEach(function (p, i) {
+    var el = document.createElement('article');
+    el.className = 'prodotto reveal';
+    el.innerHTML =
+      '<div class="prodotto-foto">' +
+        (p.tag ? '<span class="tag">' + p.tag + '</span>' : '') +
+        '<img class="retro"  src="' + img(p.retro)  + '" alt="" loading="lazy">' +
+        '<img class="fronte" src="' + img(p.fronte) + '" alt="' + p.nome + '" loading="lazy">' +
+      '</div>' +
+      '<div class="prodotto-info">' +
+        '<div><h3>' + p.nome + '</h3><div class="tipo">' + p.tipo + '</div></div>' +
+        '<span class="prezzo">' + p.prezzo + '</span>' +
+      '</div>';
+    el.addEventListener('click', function () { apriModale(i); });
+    griglia.appendChild(el);
+  });
+
+  /* ===============================================================
+     C) REVEAL ALLO SCROLL  (IntersectionObserver)
+     =============================================================== */
+  var io = new IntersectionObserver(function (voci) {
+    voci.forEach(function (v) { if (v.isIntersecting) { v.target.classList.add('in'); io.unobserve(v.target); } });
+  }, { threshold: 0.16 });
+  document.querySelectorAll('.reveal').forEach(function (n) { io.observe(n); });
+
+  /* ===============================================================
+     D) MARQUEE  (duplico il contenuto per uno scorrimento continuo)
+     =============================================================== */
+  document.querySelectorAll('[data-marquee]').forEach(function (track) {
+    track.innerHTML = track.innerHTML + track.innerHTML; // due copie -> loop senza stacchi
+  });
+
+  /* ===============================================================
+     E) NAV  (fondo opaco dopo lo scroll + menu mobile)
+     =============================================================== */
+  var nav = document.getElementById('nav');
+  window.addEventListener('scroll', function () {
+    nav.classList.toggle('solid', window.scrollY > 40);
+  });
+  document.getElementById('burger').addEventListener('click', function () {
+    document.querySelector('.nav-menu').style.display =
+      (getComputedStyle(document.querySelector('.nav-menu')).display === 'none') ? 'flex' : 'none';
+  });
+
+  /* ===============================================================
+     F) PARALLAX  (immagini full-bleed che scorrono piu lente)
+     =============================================================== */
+  var parallaxEls = document.querySelectorAll('[data-parallax]');
+  function parallax() {
+    var vh = window.innerHeight;
+    parallaxEls.forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      var f = parseFloat(el.getAttribute('data-parallax'));
+      // scostamento del centro dell'immagine dal centro viewport.
+      // scale(1.2) lascia il 10% di margine per ogni lato: l'immagine
+      // resta SEMPRE a copertura, non si creano bordi vuoti.
+      var offset = r.top + r.height / 2 - vh / 2;
+      el.style.transform = 'translateY(' + (offset * f * -1) + 'px) scale(1.08)';
     });
+  }
+  window.addEventListener('scroll', function () { requestAnimationFrame(parallax); });
+  window.addEventListener('resize', parallax);
+  parallax();
 
-    // ============================================================
-    // 0b) MODALE PRODOTTO (galleria foto + scelta taglia + carrello)
-    // ============================================================
-    var modale       = document.getElementById('modale');
-    var modaleFoto   = document.getElementById('modaleFoto');
-    var modaleThumbs = document.getElementById('modaleThumbs');
-    var modaleNome   = document.getElementById('modaleNome');
-    var modalePrezzo = document.getElementById('modalePrezzo');
-    var modaleDett   = document.getElementById('modaleDettagli');
-    var modaleTaglie = document.getElementById('modaleTaglie');
-    var btnAggiungi  = document.getElementById('modaleAggiungi');
-    var toast        = document.getElementById('toast');
+  /* ===============================================================
+     G) CAROSELLO STORIA  (frecce + dots, scorrimento orizzontale)
+     =============================================================== */
+  var track = document.getElementById('storiaTrack');
+  var slides = track.children.length;
+  var idx = 0;
+  var dotsBox = document.getElementById('storiaDots');
+  for (var d = 0; d < slides; d++) {
+    var dot = document.createElement('span');
+    dot.className = 'storia-dot' + (d === 0 ? ' attivo' : '');
+    (function (n) { dot.addEventListener('click', function () { vaiA(n); }); })(d);
+    dotsBox.appendChild(dot);
+  }
+  function vaiA(n) {
+    idx = (n + slides) % slides;
+    track.style.transform = 'translateX(' + (-idx * 100) + '%)';
+    dotsBox.querySelectorAll('.storia-dot').forEach(function (e, j) { e.classList.toggle('attivo', j === idx); });
+  }
+  document.querySelectorAll('[data-storia]').forEach(function (b) {
+    b.addEventListener('click', function () { vaiA(idx + parseInt(b.getAttribute('data-storia'), 10)); });
+  });
+  setInterval(function () { vaiA(idx + 1); }, 6000); // auto-avanzamento
 
-    var TAGLIE = ['S', 'M', 'L', 'XL', 'XXL'];
-    var prodottoAttivo = null;
-    var tagliaScelta = null;
-    var totaleCarrello = 0;
-    var timerToast = null;
+  /* ===============================================================
+     H) MODALE PRODOTTO  (galleria, taglia, aggiungi al carrello)
+     =============================================================== */
+  var modale = document.getElementById('modale');
+  var mGrande = document.getElementById('modaleGrande');
+  var mThumbs = document.getElementById('modaleThumbs');
+  var mTaglie = document.getElementById('modaleTaglie');
+  var tagliaScelta = null;
 
-    function apriModale(chiave) {
-      var p = catalogo[chiave];
-      if (!p) return;
-      prodottoAttivo = chiave;
-      tagliaScelta = null;
+  function apriModale(i) {
+    var p = PRODOTTI[i];
+    document.getElementById('modaleNome').textContent = p.nome;
+    document.getElementById('modalePrezzo').textContent = p.prezzo;
+    document.getElementById('modaleTipo').textContent = p.tipo;
+    document.getElementById('modaleQuote').textContent = '“' + p.quote + '”';
 
-      modaleNome.textContent = p.nome;
-      modalePrezzo.textContent = p.prezzo;
-      modaleDett.textContent = p.dettagli;
-
-      // foto grande = prima foto
-      cambiaFoto(p.foto[0]);
-
-      // miniature di tutte le foto
-      modaleThumbs.innerHTML = '';
-      p.foto.forEach(function (src, idx) {
-        var t = document.createElement('img');
-        t.src = src;
-        t.alt = p.nome + ' foto ' + (idx + 1);
-        t.loading = 'lazy';
-        if (idx === 0) t.className = 'attiva';
-        t.addEventListener('click', function () {
-          cambiaFoto(src);
-          var attuali = modaleThumbs.querySelectorAll('img');
-          for (var j = 0; j < attuali.length; j++) attuali[j].classList.remove('attiva');
-          t.classList.add('attiva');
-        });
-        modaleThumbs.appendChild(t);
+    // galleria
+    mGrande.src = img(p.foto[0]);
+    mThumbs.innerHTML = '';
+    p.foto.forEach(function (f, k) {
+      var t = document.createElement('img');
+      t.src = img(f);
+      t.className = (k === 0 ? 'attivo' : '');
+      t.addEventListener('click', function () {
+        mGrande.src = t.src;
+        mThumbs.querySelectorAll('img').forEach(function (x) { x.classList.remove('attivo'); });
+        t.classList.add('attivo');
       });
+      mThumbs.appendChild(t);
+    });
 
-      // bottoni taglia
-      modaleTaglie.innerHTML = '';
-      TAGLIE.forEach(function (tg) {
-        var b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'taglia';
-        b.textContent = tg;
-        b.addEventListener('click', function () {
-          tagliaScelta = tg;
-          var tutte = modaleTaglie.querySelectorAll('.taglia');
-          for (var j = 0; j < tutte.length; j++) tutte[j].classList.remove('scelta');
-          b.classList.add('scelta');
-        });
-        modaleTaglie.appendChild(b);
+    // taglie
+    tagliaScelta = null;
+    mTaglie.innerHTML = '';
+    TAGLIE.forEach(function (tg) {
+      var b = document.createElement('button');
+      b.className = 'taglia'; b.textContent = tg;
+      b.addEventListener('click', function () {
+        mTaglie.querySelectorAll('.taglia').forEach(function (x) { x.classList.remove('scelta'); });
+        b.classList.add('scelta'); tagliaScelta = tg;
       });
-
-      btnAggiungi.textContent = 'Aggiungi al carrello';
-      modale.classList.add('aperta');
-      modale.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function cambiaFoto(src) {
-      modaleFoto.src = src;
-      modaleFoto.alt = (prodottoAttivo ? catalogo[prodottoAttivo].nome : '');
-    }
-
-    function chiudiModale() {
-      modale.classList.remove('aperta');
-      modale.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    }
-
-    function mostraToast(testo) {
-      toast.textContent = testo;
-      toast.classList.add('mostra');
-      if (timerToast) clearTimeout(timerToast);
-      timerToast = setTimeout(function () { toast.classList.remove('mostra'); }, 2200);
-    }
-
-    function aggiornaCarrello() {
-      var span = document.querySelectorAll('.carrello');
-      for (var i = 0; i < span.length; i++) {
-        span[i].textContent = 'Carrello (' + totaleCarrello + ')';
-      }
-    }
-
-    // Apertura: click su foto o bottone con data-apri.
-    document.addEventListener('click', function (e) {
-      var apri = e.target.closest('[data-apri]');
-      if (apri) { apriModale(apri.getAttribute('data-apri')); return; }
-      if (e.target.closest('[data-chiudi]')) { chiudiModale(); }
+      mTaglie.appendChild(b);
     });
 
-    // Chiusura con Esc.
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && modale.classList.contains('aperta')) chiudiModale();
-    });
+    modale.classList.add('aperta');
+  }
+  function chiudiModale() { modale.classList.remove('aperta'); }
+  document.querySelectorAll('[data-chiudi]').forEach(function (b) { b.addEventListener('click', chiudiModale); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') chiudiModale(); });
 
-    // Aggiungi al carrello.
-    btnAggiungi.addEventListener('click', function () {
-      if (!prodottoAttivo) return;
-      if (!tagliaScelta) { mostraToast('Scegli prima una taglia'); return; }
-      totaleCarrello++;
-      aggiornaCarrello();
-      mostraToast(catalogo[prodottoAttivo].nome + ' (' + tagliaScelta + ') aggiunta al carrello');
-      chiudiModale();
-    });
-
-    // ---- 1) Rivelazione allo scroll (con le varianti di direzione) ----
-    var daRivelare = document.querySelectorAll('.appari');
-
-    var osservatore = new IntersectionObserver(function (voci) {
-      for (var i = 0; i < voci.length; i++) {
-        if (voci[i].isIntersecting) {
-          voci[i].target.classList.add('visibile');
-          osservatore.unobserve(voci[i].target); // si anima una volta sola
-        }
-      }
-    }, { threshold: 0.15 });
-
-    for (var i = 0; i < daRivelare.length; i++) {
-      osservatore.observe(daRivelare[i]);
-    }
-
-    // ---- 2) Effetto cascata: do un ritardo crescente ai figli di .cascata ----
-    var gruppi = document.querySelectorAll('.cascata');
-    for (var g = 0; g < gruppi.length; g++) {
-      var figli = gruppi[g].querySelectorAll('.appari');
-      for (var f = 0; f < figli.length; f++) {
-        figli[f].style.transitionDelay = (f * 0.09) + 's';
-      }
-    }
-
-    // ---- 3) Titoli animati parola per parola ----
-    var titoli = document.querySelectorAll('.titolo-anim');
-
-    // Prima divido ogni titolo in parole avvolte in <span class="parola">.
-    for (var t = 0; t < titoli.length; t++) {
-      var parole = titoli[t].textContent.trim().split(' ');
-      titoli[t].innerHTML = '';
-      for (var p = 0; p < parole.length; p++) {
-        var s = document.createElement('span');
-        s.className = 'parola';
-        s.textContent = parole[p] + '\u00A0'; // spazio dopo la parola
-        titoli[t].appendChild(s);
-      }
-    }
-
-    // Poi le faccio entrare a cascata quando il titolo arriva a schermo.
-    var ossTitoli = new IntersectionObserver(function (voci) {
-      for (var i = 0; i < voci.length; i++) {
-        if (voci[i].isIntersecting) {
-          var ps = voci[i].target.querySelectorAll('.parola');
-          for (var k = 0; k < ps.length; k++) {
-            ps[k].style.transitionDelay = (k * 0.07) + 's';
-            ps[k].classList.add('su');
-          }
-          ossTitoli.unobserve(voci[i].target);
-        }
-      }
-    }, { threshold: 0.25 });
-
-    for (var t2 = 0; t2 < titoli.length; t2++) {
-      ossTitoli.observe(titoli[t2]);
-    }
-
-    // ---- 4) Barra di avanzamento + parallasse (foto hero e blob) ----
-    var barra = document.getElementById('barraScroll');
-    var hero = document.querySelector('.hero');
-    var blobs = document.querySelectorAll('[data-parallax]');
-
-    function aggiornaScroll() {
-      var y = window.scrollY;
-
-      // barra di avanzamento (in percentuale)
-      var totale = document.body.scrollHeight - window.innerHeight;
-      barra.style.width = (totale > 0 ? (y / totale) * 100 : 0) + '%';
-
-      // la foto della hero scorre piu lenta (parallasse)
-      if (hero) {
-        hero.style.backgroundPosition = 'center top, center ' + (y * 0.35) + 'px';
-      }
-
-      // i blob si muovono in base alla loro posizione
-      for (var i = 0; i < blobs.length; i++) {
-        var fattore = parseFloat(blobs[i].getAttribute('data-parallax'));
-        var r = blobs[i].getBoundingClientRect();
-        var centro = r.top + r.height / 2 - window.innerHeight / 2;
-        blobs[i].style.transform = 'translateY(' + (-centro * fattore) + 'px)';
-      }
-    }
-
-    // Uso requestAnimationFrame cosi lo scroll resta fluido.
-    window.addEventListener('scroll', function () {
-      window.requestAnimationFrame(aggiornaScroll);
-    });
-    aggiornaScroll();
+  /* ===============================================================
+     I) CARRELLO  (contatore + toast)
+     =============================================================== */
+  var carrello = 0;
+  var toast = document.getElementById('toast');
+  document.getElementById('modaleAdd').addEventListener('click', function () {
+    if (!tagliaScelta) { toastMsg('Scegli prima la taglia'); return; }
+    carrello++;
+    document.getElementById('navCart').textContent = 'Carrello (' + carrello + ')';
+    chiudiModale();
+    toastMsg('Aggiunto al carrello ✓');
+  });
+  function toastMsg(t) {
+    toast.textContent = t;
+    toast.classList.add('su');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { toast.classList.remove('su'); }, 2200);
+  }
   </script>
-
 </body>
 </html>

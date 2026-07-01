@@ -4,7 +4,7 @@
   MR WES-TEE — "The Tee-Shirt Dropout"
   VERSIONE PRINCIPALE (sito statico, SENZA database/ordini).
   Tutto in un solo file, vanilla: niente build, niente dipendenze.
-  Le immagini stanno nella cartella condivisa FOTO/.
+  Le immagini stanno nella cartella condivisa ../archive/FOTO/.
 
   COME E' ORGANIZZATO QUESTO FILE:
     1) <style>  -> CSS in sezioni numerate e commentate (1..16)
@@ -165,6 +165,8 @@
     @media (max-width: 860px) {        /* mobile/tablet: menu → burger */
       .nav-menu { display: none; }     /* nasconde le voci in fila */
       .nav-burger { display: flex; }   /* mostra l'hamburger */
+      .nav-cart { display: none; }     /* su mobile via: resta solo logo, nome e burger */
+      .nav-dx .btn { display: none; }  /* via anche il bottone "Acquista" */
     }
 
     /* ===============================================================
@@ -277,7 +279,7 @@
     .storia-cont .etichetta { color: rgba(243,237,226,.7); } /* etichetta chiara sul fondo scuro */
     .storia-cont p { color: rgba(243,237,226,.9); } /* paragrafo chiaro */
     @media (max-width: 760px) {                                  /* mobile: foto sopra, testo sotto */
-      .storia-slide { grid-template-columns: 1fr; text-align: center; }
+      .storia-slide { grid-template-columns: 1fr; text-align: center; padding-bottom: 100px; } /* spazio extra sotto perché frecce e dots sono assoluti in fondo */
       .storia-cont { margin: 0 auto; }
     }
 
@@ -305,7 +307,7 @@
     .bg-orsi { position: relative; overflow: hidden; }
     .bg-orsi::before {
       content: ""; position: absolute; inset: 0; z-index: 0;
-      background: url("FOTO/grafica-sotto.png") center / cover no-repeat;
+      background: url("../archive/FOTO/grafica-sotto.png") center / cover no-repeat;
       mix-blend-mode: multiply;   /* bianco → carta, restano solo gli orsetti */
       opacity: .12;               /* intensità filigrana (su = più marcata) */
       pointer-events: none;
@@ -551,14 +553,14 @@
     <div class="loader-stage">
       <p class="loader-testo"><span>Welcome</span><span>to</span><span>the</span><span>dropout</span></p>
       <div class="loader-logo-wrap">
-        <img class="loader-logo" src="FOTO/kanyehead.svg" alt="" />
+        <img class="loader-logo" src="../archive/FOTO/kanyehead.svg" alt="" />
       </div>
     </div>
   </div>
 
   <!-- ============================ NAV ============================ -->
   <nav class="nav" id="nav">
-    <a class="nav-logo" href="#top"><img src="FOTO/kanyehead.svg" alt="Logo Mr Wes-Tee" /> Mr Wes-Tee</a>
+    <a class="nav-logo" href="#top"><img src="../archive/FOTO/kanyehead.svg" alt="Logo Mr Wes-Tee" /> Mr Wes-Tee</a>
     <div class="nav-menu">
       <a href="#shop">Shop</a>
       <a href="#storia">Storia</a>
@@ -574,7 +576,7 @@
 
   <!-- ============================ HERO =========================== -->
   <header class="hero" id="top">
-    <img class="hero-img" src="FOTO/backgroundHOMEPAGE1.webp" alt="Mr Wes-Tee — la collezione" data-parallax="0.04" />
+    <img class="hero-img" src="../archive/FOTO/backgroundHOMEPAGE1.webp" alt="Mr Wes-Tee — la collezione" data-parallax="0.04" />
     <div class="hero-testo">
       <h1 class="display hero-payoff">The Tee-Shirt Dropout</h1>
       <a href="#shop" class="btn chiaro">Scopri la collezione</a>
@@ -594,7 +596,7 @@
 
   <!-- ======================== STATEMENT ========================= -->
   <section class="statement">
-    <img src="FOTO/maglia%205%20retro.webp" alt="" data-parallax="0.15" />
+    <img src="../archive/FOTO/maglia%205%20retro.webp" alt="" data-parallax="0.15" />
     <div class="statement-testo reveal">
       <p class="etichetta">01 — Il manifesto</p>
       <h2 class="display">Dress like<br>a dropout</h2>
@@ -635,7 +637,7 @@
       <div class="storia-track" id="storiaTrack">
 
         <div class="storia-slide">
-          <img src="FOTO/borsaacquisti.webp" alt="" />
+          <img src="../archive/FOTO/borsaacquisti.webp" alt="" />
           <div class="storia-cont">
             <p class="etichetta">Chi siamo</p>
             <h3 class="display">Un'ossessione: la tee perfetta</h3>
@@ -644,7 +646,7 @@
         </div>
 
         <div class="storia-slide">
-          <img src="FOTO/bee%20free%20to%20express%20yourself.png" alt="" />
+          <img src="../archive/FOTO/bee%20free%20to%20express%20yourself.png" alt="" />
           <div class="storia-cont">
             <p class="etichetta">La filosofia</p>
             <h3 class="display">Be free to express yourself</h3>
@@ -653,7 +655,7 @@
         </div>
 
         <div class="storia-slide">
-          <img src="FOTO/join%20the%20dropout%20crew.png" alt="" />
+          <img src="../archive/FOTO/join%20the%20dropout%20crew.png" alt="" />
           <div class="storia-cont">
             <p class="etichetta">Il club</p>
             <h3 class="display">Join the dropout crew</h3>
@@ -694,7 +696,7 @@
         <a href="#shop" class="btn">Vedi i capi</a>
       </div>
       <div class="valori-foto reveal">
-        <img src="FOTO/maglia%201%20retro.webp" alt="Dettaglio stampa Mr Wes-Tee" />
+        <img src="../archive/FOTO/maglia%201%20retro.webp" alt="Dettaglio stampa Mr Wes-Tee" />
       </div>
     </div>
   </section>
@@ -728,7 +730,7 @@
 
       <div class="evidenza">
         <article class="evidenza-card reveal">
-          <img class="evidenza-foto" src="FOTO/maglia%206%20retro.webp" alt="Starry Dropout" loading="lazy" />
+          <img class="evidenza-foto" src="../archive/FOTO/maglia%206%20retro.webp" alt="Starry Dropout" loading="lazy" />
           <p class="etichetta amber">Disponibile ora</p>
           <h3>Starry Dropout</h3>
           <p>Stampa artistica "starry night" con il Dropout Bear sul retro. Edizione limitata, cotone pesante 240 g/m².</p>
@@ -736,7 +738,7 @@
         </article>
 
         <article class="evidenza-card reveal">
-          <img class="evidenza-foto" src="FOTO/ChatGPT%20Image%2025%20giu%202026,%2014_56_57.png" alt="Dropout Jacket — in arrivo" loading="lazy" />
+          <img class="evidenza-foto" src="../archive/ChatGPT%20Image%2025%20giu%202026,%2014_56_57.png" alt="Dropout Jacket — in arrivo" loading="lazy" />
           <p class="etichetta amber">In arrivo</p>
           <h3>Dropout Jacket</h3>
           <p>La prima giacca della crew: hooded bomber bicolore blu e grigio, con la stampa-frase sul retro. Stesso DNA delle tee, peso da inverno.</p>
@@ -753,12 +755,12 @@
     <div class="container">
       <div class="nextup reveal">
         <div class="nextup-griglia">
-          <img class="nextup-foto" src="FOTO/PIXELSTRECH1.webp" alt="" loading="lazy" />
-          <img class="nextup-foto" src="FOTO/PIXELSTRECH2.webp" alt="" loading="lazy" />
-          <img class="nextup-foto" src="FOTO/PIXELSTRECH3.webp" alt="" loading="lazy" />
-          <img class="nextup-foto" src="FOTO/PIXELSTRECH4.webp" alt="" loading="lazy" />
-          <img class="nextup-foto" src="FOTO/PIXELSTRECH5.webp" alt="" loading="lazy" />
-          <img class="nextup-foto" src="FOTO/PIXELSTRECH6.webp" alt="" loading="lazy" />
+          <img class="nextup-foto" src="../archive/FOTO/PIXELSTRECH1.webp" alt="" loading="lazy" />
+          <img class="nextup-foto" src="../archive/FOTO/PIXELSTRECH2.webp" alt="" loading="lazy" />
+          <img class="nextup-foto" src="../archive/FOTO/PIXELSTRECH3.webp" alt="" loading="lazy" />
+          <img class="nextup-foto" src="../archive/FOTO/PIXELSTRECH4.webp" alt="" loading="lazy" />
+          <img class="nextup-foto" src="../archive/FOTO/PIXELSTRECH5.webp" alt="" loading="lazy" />
+          <img class="nextup-foto" src="../archive/FOTO/PIXELSTRECH6.webp" alt="" loading="lazy" />
         </div>
         <div class="nextup-testo"><span class="display">Next up</span></div>
       </div>
@@ -864,9 +866,9 @@
         1 capo = 1 oggetto { }. Aggiungi/togli capo = copia/cancella blocco.
         Campi: nome · prezzo('€39') · tipo · tag(''=niente) · quote
                · fronte/retro (griglia) · foto[] (galleria, 1a=fronte)
-        Foto: nome file in FOTO/ SENZA .webp (la aggiunge img())
+        Foto: nome file in ../archive/FOTO/ SENZA .webp (la aggiunge img())
      =============================================================== */
-  var BASE = 'FOTO/';                               // cartella foto condivisa
+  var BASE = '../archive/FOTO/';                               // cartella foto condivisa
   function img(nome) { return BASE + encodeURI(nome) + '.webp'; } // nome → percorso completo .webp (encodeURI = gestisce gli spazi)
 
   var PRODOTTI = [
